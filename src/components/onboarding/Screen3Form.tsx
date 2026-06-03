@@ -10,24 +10,47 @@ import { useOnboardingUser } from '@/lib/useOnboardingUser'
 import { toast } from '@/lib/toast'
 import { OnboardingPageSkeleton } from '@/components/ui/skeletons/AdminSkeletons'
 
-export default function Screen3Form() {
+interface FormState {
+  current_project: string
+  challenge: string
+  support_needed: string
+}
+
+export default function Screen3Form({ editMode = false }: { editMode?: boolean }) {
   const router = useRouter()
   const { userId, loading: authLoading } = useOnboardingUser()
-  const [form, setForm] = useState({ current_project: '', challenge: '', support_needed: '' })
+  const [form, setForm] = useState<FormState>({ current_project: '', challenge: '', support_needed: '' })
   const [loading, setLoading] = useState(false)
+  const [fetching, setFetching] = useState(true)
   const [error, setError] = useState('')
+  const [existingId, setExistingId] = useState<string | null>(null)
 
   useEffect(() => {
     if (!authLoading && !userId) router.replace('/onboarding/register')
   }, [authLoading, userId, router])
 
+  // Load existing answers so users can edit them
   useEffect(() => {
     if (!userId) return
-    supabase.from('users').select('tarot_card_type').eq('id', userId).single()
+    supabase
+      .from('champ_forms')
+      .select('id, current_project, biggest_challenge, support_needed')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
       .then(({ data }) => {
-        if (data && !data.tarot_card_type) router.replace('/onboarding/tarot')
+        if (data) {
+          setExistingId(data.id)
+          setForm({
+            current_project: data.current_project ?? '',
+            challenge: data.biggest_challenge ?? '',
+            support_needed: data.support_needed ?? '',
+          })
+        }
+        setFetching(false)
       })
-  }, [userId, router])
+  }, [userId])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -41,12 +64,28 @@ export default function Screen3Form() {
       computeRiskFlag(form.support_needed),
     ])
 
-    const { error: submissionErr } = await supabase.from('champ_forms').insert({
-      user_id: userId,
-      current_project: form.current_project,
-      biggest_challenge: form.challenge,
-      support_needed: form.support_needed,
-    })
+    let submissionErr: { message: string } | null = null
+
+    if (existingId) {
+      // Update existing answers — users can always edit
+      const { error } = await supabase
+        .from('champ_forms')
+        .update({
+          current_project: form.current_project,
+          biggest_challenge: form.challenge,
+          support_needed: form.support_needed,
+        })
+        .eq('id', existingId)
+      submissionErr = error
+    } else {
+      const { error } = await supabase.from('champ_forms').insert({
+        user_id: userId,
+        current_project: form.current_project,
+        biggest_challenge: form.challenge,
+        support_needed: form.support_needed,
+      })
+      submissionErr = error
+    }
 
     if (submissionErr) {
       setError(submissionErr.message)
@@ -57,13 +96,17 @@ export default function Screen3Form() {
 
     await supabase.from('users').update({ risk_flag }).eq('id', userId)
 
-    toast.success('Submission saved')
-
+    toast.success(existingId ? 'Updated! You\'re on it. ✅' : 'Spilled the tea. Let\'s go! ☕')
     setLoading(false)
-    router.push('/onboarding/roadmap')
+
+    if (editMode) {
+      router.push('/dashboard')
+    } else {
+      router.push('/onboarding/roadmap')
+    }
   }
 
-  if (authLoading || !userId) return <OnboardingPageSkeleton />
+  if (authLoading || fetching) return <OnboardingPageSkeleton />
 
   return (
     <motion.div
@@ -75,63 +118,89 @@ export default function Screen3Form() {
     >
       <div className="w-full max-w-lg">
         <div className="text-center mb-8">
-          <h2 className="text-2xl sm:text-3xl font-bold gradient-text mb-2">Tell us about your AI journey</h2>
-          <p className="text-slate-400">Help us understand where you are and what you need</p>
+          <h2 className="text-2xl sm:text-3xl font-extrabold gradient-text mb-2 tracking-tight">
+            {existingId ? 'Update your answers 📝' : 'Spill the tea ☕'}
+          </h2>
+          <p className="text-slate-400 text-sm">
+            {existingId
+              ? 'Changed your mind? Things moved? Update away — we won\'t judge.'
+              : 'Three questions. No right answers. Just be honest (we can handle it).'}
+          </p>
         </div>
 
         <GlassCard>
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                What AI project are you currently working on?
+              <label className="block text-sm font-semibold text-slate-300 mb-1">
+                What AI thing are you actually working on right now?
               </label>
+              <p className="text-xs text-slate-500 mb-2">
+                Doesn't have to be a 6-month project. Even "I've been using ChatGPT to reply to emails" counts.
+              </p>
               <textarea
                 required
                 rows={3}
                 value={form.current_project}
                 onChange={e => setForm({ ...form, current_project: e.target.value })}
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition resize-none"
-                placeholder="Describe your current AI project or experiments..."
+                placeholder="Tell us what you're up to..."
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                What is your biggest AI-related challenge or pain point?
+              <label className="block text-sm font-semibold text-slate-300 mb-1">
+                What's the one thing making you want to flip a table?
               </label>
+              <p className="text-xs text-slate-500 mb-2">
+                Your biggest AI-related challenge or pain point. Be specific — vague answers get vague help.
+              </p>
               <textarea
                 required
                 rows={3}
                 value={form.challenge}
                 onChange={e => setForm({ ...form, challenge: e.target.value })}
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition resize-none"
-                placeholder="What's been difficult or frustrating?"
+                placeholder="What's been hard or frustrating?"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                What support, resource or training would help you most?
+              <label className="block text-sm font-semibold text-slate-300 mb-1">
+                If we could hand you one thing tomorrow, what would it be?
               </label>
+              <p className="text-xs text-slate-500 mb-2">
+                A workshop? A tool subscription? Someone to just sit with you for an hour? Say it.
+              </p>
               <textarea
                 required
                 rows={3}
                 value={form.support_needed}
                 onChange={e => setForm({ ...form, support_needed: e.target.value })}
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition resize-none"
-                placeholder="Workshops, tools, mentorship, documentation..."
+                placeholder="Workshops, tools, mentorship, someone to just vibe with..."
               />
             </div>
 
             {error && <p className="text-red-400 text-sm">{error}</p>}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3 rounded-xl font-semibold text-white bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 transition disabled:opacity-50"
-            >
-              {loading ? 'Saving...' : 'Submit & Continue →'}
-            </button>
+            <div className="flex gap-3">
+              {editMode && (
+                <button
+                  type="button"
+                  onClick={() => router.push('/dashboard')}
+                  className="flex-1 py-3 rounded-xl font-semibold text-slate-300 border border-white/10 hover:bg-white/5 transition"
+                >
+                  Cancel
+                </button>
+              )}
+              <button
+                type="submit"
+                disabled={loading}
+                className="flex-1 py-3 rounded-xl font-semibold text-white bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 active:scale-95 transition-all disabled:opacity-50"
+              >
+                {loading ? 'Saving...' : existingId ? 'Save Changes →' : 'Submit & Continue →'}
+              </button>
+            </div>
           </form>
         </GlassCard>
       </div>

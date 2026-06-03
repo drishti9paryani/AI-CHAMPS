@@ -21,7 +21,6 @@ function LoginContent() {
       setError(error.message)
       setLoading(false)
     }
-    // on success the browser redirects to /auth/callback — no state cleanup needed
   }
 
   return (
@@ -37,24 +36,33 @@ function LoginContent() {
       >
         {/* Logo / title */}
         <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-600 to-blue-600 mb-4 shadow-lg shadow-purple-500/25">
-            <span className="text-2xl">⚡</span>
-          </div>
-          <h1 className="text-3xl font-bold gradient-text mb-1">AI Champs</h1>
-          <p className="text-slate-400 text-sm">White Rivers Media · AI Champions Program</p>
+          <motion.div
+            initial={{ scale: 0.8, rotate: -10 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ type: 'spring', stiffness: 200, damping: 12 }}
+            className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-br from-purple-500 to-blue-600 mb-5 shadow-2xl shadow-purple-500/40"
+          >
+            <span className="text-4xl">⚡</span>
+          </motion.div>
+          <h1 className="text-4xl font-extrabold gradient-text mb-2 tracking-tight">AI Champs</h1>
+          <p className="text-slate-500 text-sm">
+            White Rivers Media · AI Champions Program
+          </p>
         </div>
 
         {/* Card */}
         <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-8 shadow-2xl">
-          <h2 className="text-xl font-semibold text-white mb-2 text-center">Welcome</h2>
-          <p className="text-slate-400 text-sm text-center mb-8">
-            Sign in with your <span className="text-purple-400 font-medium">@whiteriversmedia.com</span> or <span className="text-purple-400 font-medium">@wrd.co.in</span> Google account to continue.
+          <h2 className="text-xl font-bold text-white mb-1 text-center">
+            Oh hey, you showed up. 👀
+          </h2>
+          <p className="text-slate-400 text-sm text-center mb-8 leading-relaxed">
+            Sign in with your Google account and let's figure out just how AI-brained you actually are.
+            No pressure. (Okay, a little pressure.)
           </p>
 
-          {/* Domain error */}
-          {errorParam === 'unauthorized_domain' && (
+          {errorParam === 'auth_callback_failed' && (
             <div className="mb-5 rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-3 text-sm text-red-400 text-center">
-              Only <strong>@whiteriversmedia.com</strong> or <strong>@wrd.co.in</strong> accounts are allowed.
+              Something went sideways during login. Try again?
             </div>
           )}
 
@@ -67,7 +75,7 @@ function LoginContent() {
           <button
             onClick={handleGoogle}
             disabled={loading}
-            className="w-full flex items-center justify-center gap-3 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 px-4 py-3 text-white font-medium transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full flex items-center justify-center gap-3 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 active:scale-95 px-4 py-3.5 text-white font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (
               <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -79,12 +87,12 @@ function LoginContent() {
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
               </svg>
             )}
-            {loading ? 'Redirecting…' : 'Continue with Google'}
+            {loading ? 'One sec…' : 'Continue with Google'}
           </button>
         </div>
 
         <p className="text-center text-xs text-slate-600 mt-6">
-          Access restricted to White Rivers Media employees
+          By signing in, you agree that AI is actually pretty cool.
         </p>
       </motion.div>
     </div>

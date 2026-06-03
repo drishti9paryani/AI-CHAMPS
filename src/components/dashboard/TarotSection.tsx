@@ -26,9 +26,24 @@ export default function TarotSection({ card, cardType }: TarotSectionProps) {
   async function downloadCard() {
     if (!cardRef.current || !card) return
     const { default: html2canvas } = await import('html2canvas')
-    const canvas = await html2canvas(cardRef.current, { backgroundColor: null, scale: 2 })
+
+    // Clone the card back face into an off-screen element with no CSS transform
+    const clone = cardRef.current.cloneNode(true) as HTMLElement
+    clone.style.position = 'fixed'
+    clone.style.top = '-9999px'
+    clone.style.left = '-9999px'
+    clone.style.transform = 'none'
+    clone.style.width = '280px'
+    clone.style.height = '420px'
+    clone.style.borderRadius = '16px'
+    clone.style.overflow = 'hidden'
+    document.body.appendChild(clone)
+
+    const canvas = await html2canvas(clone, { backgroundColor: null, scale: 2, useCORS: true })
+    document.body.removeChild(clone)
+
     const link = document.createElement('a')
-    link.download = `ai-tarot-${card.title.replace(/\s+/g, '-').toLowerCase()}.png`
+    link.download = `ai-archetype-${card.title.replace(/\s+/g, '-').toLowerCase()}.png`
     link.href = canvas.toDataURL('image/png')
     link.click()
   }
@@ -54,7 +69,7 @@ export default function TarotSection({ card, cardType }: TarotSectionProps) {
     >
       <GlassCard>
         <div className="flex flex-col md:flex-row md:items-start gap-6">
-          <div className="w-full md:w-56 flex-shrink-0 mx-auto md:mx-0">
+          <div className="w-48 flex-shrink-0 mx-auto md:mx-0">
             <TarotFlipCard card={card} flipped={flipped} cardRef={cardRef} />
           </div>
           <div className="flex-1">

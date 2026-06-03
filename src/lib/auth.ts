@@ -19,14 +19,26 @@ function getAuthRedirectUrl() {
 export async function getPostLoginRedirect(
   client: SupabaseClient,
   userId: string
-): Promise<PostLoginPath> {
+): Promise<string> {
   const { data } = await client
     .from('users')
-    .select('role')
+    .select('role, onboarding_complete, tarot_card_type, department')
     .eq('id', userId)
-    .single()
+    .maybeSingle()
 
-  return data?.role === 'admin' ? '/admin' : '/dashboard'
+  // Brand new user — no profile row yet
+  if (!data) return '/onboarding/register'
+
+  if (data.role === 'admin') return '/admin'
+
+  // Returning user who hasn't finished onboarding
+  if (!data.onboarding_complete) {
+    if (!data.department) return '/onboarding/register'
+    if (!data.tarot_card_type) return '/onboarding/tarot'
+    return '/onboarding/form'
+  }
+
+  return '/dashboard'
 }
 
 /** Google OAuth — configure Google provider in Supabase Dashboard → Authentication → Providers. */

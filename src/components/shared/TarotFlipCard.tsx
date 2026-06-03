@@ -51,24 +51,24 @@ export default function TarotFlipCard({
 
         <div className="flip-card-back absolute inset-0" ref={cardRef}>
           {card && (
-            <div className={`w-full h-full rounded-2xl bg-gradient-to-br ${gradientClass} p-5 border border-white/20 flex flex-col justify-between overflow-y-auto`}>
+            <div className={`w-full h-full rounded-2xl bg-gradient-to-br ${gradientClass} p-4 border border-white/20 flex flex-col justify-between overflow-hidden`}>
               <div>
-                <p className="text-white/50 text-xs uppercase tracking-widest mb-1">AI Tarot</p>
-                <h3 className="text-xl font-bold text-white mb-3">{card.title}</h3>
-                <p className="text-white/80 text-sm leading-relaxed mb-4">{card.description}</p>
+                <p className="text-white/50 text-[10px] uppercase tracking-widest mb-1">AI Tarot</p>
+                <h3 className="text-base font-bold text-white mb-2 leading-snug">{card.title}</h3>
+                <p className="text-white/80 text-xs leading-relaxed line-clamp-3">{card.description}</p>
               </div>
-              <div className="space-y-2">
-                <div className="bg-white/10 rounded-xl p-3">
-                  <p className="text-white/50 text-xs">Strength</p>
-                  <p className="text-white text-sm font-medium">{card.strength}</p>
+              <div className="space-y-1.5">
+                <div className="bg-white/10 rounded-lg p-2.5">
+                  <p className="text-white/50 text-[10px]">Strength</p>
+                  <p className="text-white text-xs font-medium leading-snug">{card.strength}</p>
                 </div>
-                <div className="bg-white/10 rounded-xl p-3">
-                  <p className="text-white/50 text-xs">Growth Area</p>
-                  <p className="text-white text-sm font-medium">{card.growth_area}</p>
+                <div className="bg-white/10 rounded-lg p-2.5">
+                  <p className="text-white/50 text-[10px]">Growth Area</p>
+                  <p className="text-white text-xs font-medium leading-snug">{card.growth_area}</p>
                 </div>
-                <div className="bg-white/10 rounded-xl p-3">
-                  <p className="text-white/50 text-xs">Prediction</p>
-                  <p className="text-white text-sm italic">{card.prediction}</p>
+                <div className="bg-white/10 rounded-lg p-2.5">
+                  <p className="text-white/50 text-[10px]">Prediction</p>
+                  <p className="text-white text-xs italic leading-snug line-clamp-2">{card.prediction}</p>
                 </div>
               </div>
             </div>

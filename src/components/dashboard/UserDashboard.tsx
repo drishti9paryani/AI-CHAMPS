@@ -9,7 +9,6 @@ import ProfileCard from '@/components/dashboard/ProfileCard'
 import TarotSection from '@/components/dashboard/TarotSection'
 import MySubmissions from '@/components/dashboard/MySubmissions'
 import RoadmapProgress from '@/components/dashboard/RoadmapProgress'
-import Announcements from '@/components/dashboard/Announcements'
 import LearningResources from '@/components/dashboard/LearningResources'
 import DashboardSkeleton from '@/components/ui/skeletons/DashboardSkeleton'
 
@@ -21,6 +20,8 @@ interface UserData {
   current_week: number
   tarot_card_type: string | null
   tarot_card_data: TarotCardData | null
+  roadmap_mode: string | null
+  chosen_roadmap_path: string[] | null
 }
 
 interface Submission {
@@ -40,7 +41,7 @@ export default function UserDashboard({ userId }: { userId: string }) {
         const [{ data: u, error: userErr }, { data: s }] = await Promise.all([
           supabase
             .from('users')
-            .select('name, department, email, ai_score, current_week, tarot_card_type, tarot_card_data')
+            .select('name, department, email, ai_score, current_week, tarot_card_type, tarot_card_data, roadmap_mode, chosen_roadmap_path')
             .eq('id', userId)
             .single(),
           supabase
@@ -83,9 +84,12 @@ export default function UserDashboard({ userId }: { userId: string }) {
         aiScore={user.ai_score}
       />
       <TarotSection card={user.tarot_card_data} cardType={user.tarot_card_type} />
-      <MySubmissions submission={submission} />
-      <RoadmapProgress currentWeek={user.current_week ?? 1} />
-      <Announcements />
+      <MySubmissions submission={submission} userId={userId} />
+      <RoadmapProgress
+        currentWeek={user.current_week ?? 1}
+        roadmapMode={user.roadmap_mode}
+        chosenPath={user.chosen_roadmap_path}
+      />
       <LearningResources />
     </DashboardLayout>
   )

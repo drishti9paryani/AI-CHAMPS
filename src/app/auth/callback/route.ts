@@ -18,13 +18,6 @@ export async function GET(request: Request) {
       } = await supabase.auth.getUser()
 
       if (user) {
-        // Only WRM accounts are allowed
-        const allowedDomains = ['@whiteriversmedia.com', '@wrd.co.in']
-        if (!allowedDomains.some(domain => user.email?.endsWith(domain))) {
-          await supabase.auth.signOut()
-          return NextResponse.redirect(`${origin}/login?error=unauthorized_domain`)
-        }
-
         const path =
           redirectTo && redirectTo.startsWith('/')
             ? redirectTo

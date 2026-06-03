@@ -19,24 +19,35 @@ export function useOnboardingUser(): OnboardingUserState {
   })
 
   useEffect(() => {
-    async function init() {
-      const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
+    const supabase = createClient()
 
-      if (!user?.email) {
-        setState({ userId: null, email: null, loading: false, isAuthenticated: false })
-        return
-      }
+    // Get initial session
+    async function init() {
+      const { data: { session } } = await supabase.auth.getSession()
+      const user = session?.user ?? null
 
       setState({
-        userId: user.id,
-        email: user.email,
+        userId: user?.id ?? null,
+        email: user?.email ?? null,
         loading: false,
-        isAuthenticated: true,
+        isAuthenticated: !!user,
       })
     }
 
     init()
+
+    // Also listen for auth state changes (catches post-OAuth redirect)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      const user = session?.user ?? null
+      setState({
+        userId: user?.id ?? null,
+        email: user?.email ?? null,
+        loading: false,
+        isAuthenticated: !!user,
+      })
+    })
+
+    return () => subscription.unsubscribe()
   }, [])
 
   return state
