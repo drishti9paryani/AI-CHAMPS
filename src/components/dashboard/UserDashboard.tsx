@@ -1,0 +1,92 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { supabase } from '@/lib/supabase'
+import { toast } from '@/lib/toast'
+import type { TarotCardData } from '@/lib/tarotConstants'
+import DashboardLayout from '@/components/dashboard/DashboardLayout'
+import ProfileCard from '@/components/dashboard/ProfileCard'
+import TarotSection from '@/components/dashboard/TarotSection'
+import MySubmissions from '@/components/dashboard/MySubmissions'
+import RoadmapProgress from '@/components/dashboard/RoadmapProgress'
+import Announcements from '@/components/dashboard/Announcements'
+import LearningResources from '@/components/dashboard/LearningResources'
+import DashboardSkeleton from '@/components/ui/skeletons/DashboardSkeleton'
+
+interface UserData {
+  name: string
+  department: string
+  email: string
+  ai_score: number
+  current_week: number
+  tarot_card_type: string | null
+  tarot_card_data: TarotCardData | null
+}
+
+interface Submission {
+  current_project: string
+  biggest_challenge: string
+  support_needed: string
+}
+
+export default function UserDashboard({ userId }: { userId: string }) {
+  const [user, setUser] = useState<UserData | null>(null)
+  const [submission, setSubmission] = useState<Submission | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const [{ data: u, error: userErr }, { data: s }] = await Promise.all([
+          supabase
+            .from('users')
+            .select('name, department, email, ai_score, current_week, tarot_card_type, tarot_card_data')
+            .eq('id', userId)
+            .single(),
+          supabase
+            .from('champ_forms')
+            .select('current_project, biggest_challenge, support_needed')
+            .eq('user_id', userId)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .maybeSingle(),
+        ])
+        if (userErr) {
+          toast.error('Could not load your profile. Please refresh.')
+          return
+        }
+        if (u) setUser(u)
+        if (s) setSubmission(s)
+      } finally {
+        setLoading(false)
+      }
+    }
+    load()
+  }, [userId])
+
+  if (loading) return <DashboardSkeleton />
+
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center min-h-screen px-4" style={{ background: '#0d0d1a' }}>
+        <p className="text-slate-400 text-sm text-center">Unable to load dashboard. Please try signing in again.</p>
+      </div>
+    )
+  }
+
+  return (
+    <DashboardLayout userName={user.name}>
+      <ProfileCard
+        name={user.name}
+        department={user.department}
+        email={user.email}
+        aiScore={user.ai_score}
+      />
+      <TarotSection card={user.tarot_card_data} cardType={user.tarot_card_type} />
+      <MySubmissions submission={submission} />
+      <RoadmapProgress currentWeek={user.current_week ?? 1} />
+      <Announcements />
+      <LearningResources />
+    </DashboardLayout>
+  )
+}
