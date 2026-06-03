@@ -4,7 +4,6 @@ import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import GlassCard from '@/components/ui/GlassCard'
 import { AdminRiskSkeleton } from '@/components/ui/skeletons/AdminSkeletons'
-import { toast } from '@/lib/toast'
 
 interface FlaggedUser {
   id: string; name: string; department: string; email: string
@@ -23,8 +22,6 @@ const FLAG_STYLE = {
 export default function RiskFlags() {
   const [flagged, setFlagged] = useState<FlaggedUser[]>([])
   const [loading, setLoading] = useState(true)
-  const [analyzing, setAnalyzing] = useState(false)
-  const [error, setError] = useState('')
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -70,46 +67,12 @@ export default function RiskFlags() {
 
   useEffect(() => { load() }, [load])
 
-  async function runAnalysis() {
-    setAnalyzing(true)
-    setError('')
-    const res = await fetch('/api/risk-analysis', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })
-    if (!res.ok) {
-      const msg = 'Risk analysis failed. Check ANTHROPIC_API_KEY and Supabase config.'
-      setError(msg)
-      toast.error(msg)
-      setAnalyzing(false)
-      return
-    }
-    await load()
-    toast.success('Risk analysis complete')
-    setAnalyzing(false)
-  }
-
   const red = flagged.filter(u => u.flag_color === 'red')
   const amber = flagged.filter(u => u.flag_color === 'amber')
   const green = flagged.filter(u => u.flag_color === 'green')
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4 flex-wrap">
-        <button
-          onClick={runAnalysis}
-          disabled={analyzing}
-          className="px-6 py-3 rounded-xl font-semibold text-white bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 transition disabled:opacity-50"
-        >
-          {analyzing ? (
-            <span className="flex items-center gap-2">
-              <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              Running Risk Analysis...
-            </span>
-          ) : 'Run Risk Analysis'}
-        </button>
-        <p className="text-slate-500 text-sm">Analyzes all submissions with Claude and saves to risk_flags</p>
-      </div>
-
-      {error && <p className="text-red-400">{error}</p>}
-
       {loading ? (
         <AdminRiskSkeleton />
       ) : (
