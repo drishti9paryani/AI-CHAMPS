@@ -6,7 +6,7 @@ import GlassCard from '@/components/ui/GlassCard'
 import { toast } from '@/lib/toast'
 
 const INACTIVITY_DAYS = 14
-const TOTAL_WEEKS = 12
+const TOTAL_WEEKS = 4
 
 interface RiskUser {
   id: string
@@ -121,11 +121,19 @@ export default function RiskFlags() {
   }
 
   function sendReminder(u: RiskUser) {
-    toast.success(`Reminder queued for ${u.name}`)
+    const subject = encodeURIComponent('AI Champs Programme — Quick Check-in')
+    const body = encodeURIComponent(
+      `Hi ${u.name.split(' ')[0]},\n\nJust checking in on your AI Champs journey. We noticed you haven't been active recently and wanted to see if there's anything we can do to support you.\n\nFeel free to reply to this email or book a session below.\n\nBest,\nAI Champs Team`
+    )
+    window.open(`mailto:${u.email}?subject=${subject}&body=${body}`, '_blank')
   }
 
   function scheduleSupport(u: RiskUser) {
-    toast.success(`Support session scheduled for ${u.name}`)
+    const subject = encodeURIComponent('AI Champs — Support Session')
+    const body = encodeURIComponent(
+      `Hi ${u.name.split(' ')[0]},\n\nI'd love to schedule a support session to help you with your AI journey${u.challenge ? ` — especially around: "${u.challenge}"` : ''}.\n\nCould you share your availability this week?\n\nBest,\nAI Champs Team`
+    )
+    window.open(`mailto:${u.email}?subject=${subject}&body=${body}`, '_blank')
   }
 
   const unreviewed = users.filter(u => !u.risk_reviewed_at)
@@ -250,11 +258,11 @@ export default function RiskFlags() {
                 <div className="flex gap-2 flex-wrap">
                   {!showReviewed ? (
                     <>
-                      <button onClick={() => sendReminder(u)} className="px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-500/20 border border-blue-500/30 text-blue-300 hover:bg-blue-500/30 transition">
-                        📧 Send Reminder
+                      <button onClick={() => sendReminder(u)} className="px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-500/20 border border-blue-500/30 text-blue-300 hover:bg-blue-500/30 transition" title="Opens your email client with a pre-filled message">
+                        📧 Email Reminder
                       </button>
-                      <button onClick={() => scheduleSupport(u)} className="px-3 py-1.5 rounded-lg text-xs font-medium bg-purple-500/20 border border-purple-500/30 text-purple-300 hover:bg-purple-500/30 transition">
-                        📅 Schedule Support
+                      <button onClick={() => scheduleSupport(u)} className="px-3 py-1.5 rounded-lg text-xs font-medium bg-purple-500/20 border border-purple-500/30 text-purple-300 hover:bg-purple-500/30 transition" title="Opens your email client to arrange a support session">
+                        📅 Email for Support
                       </button>
                       <button onClick={() => markReviewed(u.id)} className="px-3 py-1.5 rounded-lg text-xs font-medium bg-white/5 border border-white/10 text-slate-400 hover:text-white transition">
                         ✓ Mark Reviewed

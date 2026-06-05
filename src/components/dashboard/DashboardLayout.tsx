@@ -1,17 +1,18 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import ThemeToggle from '@/components/ui/ThemeToggle'
+import { signOut } from '@/lib/auth'
 
 const NAV_ITEMS = [
   { id: 'profile', label: 'Profile', icon: '👤', mobileLabel: 'Profile' },
-  { id: 'tarot', label: 'Guide', icon: '✨', mobileLabel: 'Guide' },
-  { id: 'submissions', label: 'Submissions', icon: '📝', mobileLabel: 'Forms' },
+  { id: 'submissions', label: 'Check-in', icon: '📝', mobileLabel: 'Check-in' },
   { id: 'roadmap', label: 'Roadmap', icon: '🗺️', mobileLabel: 'Roadmap' },
-  { id: 'announcements', label: 'News', icon: '📢', mobileLabel: 'News' },
+  { id: 'booking', label: 'Book', icon: '📅', mobileLabel: 'Book' },
   { id: 'resources', label: 'Resources', icon: '📚', mobileLabel: 'Tools' },
 ]
 
-const BOOK_SLOT_URL = 'https://calendly.com/ai-champs'
 
 interface DashboardLayoutProps {
   userName: string
@@ -21,6 +22,12 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({ userName, isAdmin, children }: DashboardLayoutProps) {
   const [activeSection, setActiveSection] = useState('profile')
+  const router = useRouter()
+
+  async function handleSignOut() {
+    await signOut()
+    router.push('/login')
+  }
 
   function scrollToSection(id: string) {
     setActiveSection(id)
@@ -31,14 +38,14 @@ export default function DashboardLayout({ userName, isAdmin, children }: Dashboa
   }
 
   return (
-    <div
-      className="min-h-screen flex"
-      style={{ background: 'radial-gradient(ellipse at top, #1a0533 0%, #0d0d1a 60%)' }}
-    >
+    <div className="min-h-screen flex page-bg">
       {/* Desktop sidebar */}
       <aside className="hidden lg:flex flex-col w-64 flex-shrink-0 border-r border-white/10 bg-black/20 backdrop-blur-xl fixed inset-y-0 left-0 z-30">
         <div className="p-6 border-b border-white/10">
-          <h1 className="text-xl font-bold gradient-text">AI Champs</h1>
+          <div className="flex items-center justify-between">
+            <h1 className="text-xl font-bold gradient-text">AI Champs</h1>
+            <ThemeToggle />
+          </div>
           <p className="text-slate-500 text-xs mt-1 truncate">Welcome, {userName.split(' ')[0]}</p>
         </div>
         <nav className="flex-1 p-4 space-y-1">
@@ -67,6 +74,13 @@ export default function DashboardLayout({ userName, isAdmin, children }: Dashboa
               Switch to Admin
             </a>
           )}
+          <button
+            onClick={handleSignOut}
+            className="flex items-center gap-2 w-full px-3 py-2 rounded-xl text-sm font-medium text-slate-500 hover:text-slate-300 hover:bg-white/5 border border-transparent transition"
+          >
+            <span>↩</span>
+            Sign Out
+          </button>
           <p className="text-slate-600 text-xs text-center">White Rivers Media</p>
         </div>
       </aside>
@@ -92,15 +106,6 @@ export default function DashboardLayout({ userName, isAdmin, children }: Dashboa
               <span className="text-[10px] font-medium truncate">{item.mobileLabel}</span>
             </button>
           ))}
-          <a
-            href={BOOK_SLOT_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-lg min-w-0 flex-1 text-purple-400"
-          >
-            <span className="text-lg">📅</span>
-            <span className="text-[10px] font-medium truncate">Book</span>
-          </a>
         </div>
       </nav>
     </div>

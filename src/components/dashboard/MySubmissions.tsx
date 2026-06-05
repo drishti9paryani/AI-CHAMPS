@@ -14,6 +14,52 @@ interface Submission {
   support_needed: string
 }
 
+function CollapsibleAnswer({ label, value }: { label: string; value: string }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <div className="border border-white/10 rounded-xl overflow-hidden">
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between px-4 py-3 hover:bg-white/5 transition text-left"
+      >
+        <p className="text-purple-400 text-xs uppercase tracking-wider font-semibold">{label}</p>
+        <span className={`text-slate-400 text-sm transition-transform duration-200 ${open ? 'rotate-180' : ''}`}>⌄</span>
+      </button>
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <p className="text-white bg-white/5 px-4 py-3 text-sm leading-relaxed border-t border-white/5">
+              {value}
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
+function AnswerView({ submission }: { submission: Submission }) {
+  return (
+    <motion.div
+      key="view"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="space-y-2 mt-4"
+    >
+      <CollapsibleAnswer label="If we could hand you one thing tomorrow — what?" value={submission.support_needed} />
+      <CollapsibleAnswer label="What AI thing are you working on?" value={submission.current_project} />
+      <CollapsibleAnswer label="What's your biggest AI-related challenge right now?" value={submission.biggest_challenge} />
+    </motion.div>
+  )
+}
+
 interface MySubmissionsProps {
   submission: Submission | null
   userId: string
@@ -107,8 +153,8 @@ export default function MySubmissions({ submission: initialSubmission, userId }:
           className="w-full flex items-center justify-between px-6 py-4 hover:bg-white/5 transition"
         >
           <div className="text-left">
-            <h3 className="text-lg font-bold text-white">My Answers</h3>
-            <p className="text-slate-400 text-sm">The tea you spilled during onboarding.</p>
+            <h3 className="text-lg font-bold text-white">My Check-in</h3>
+            <p className="text-slate-400 text-sm">Your current AI project, blockers, and support needs.</p>
           </div>
           <span className={`text-slate-400 text-lg transition-transform duration-200 ${open ? 'rotate-180' : ''}`}>⌄</span>
         </button>
@@ -147,7 +193,7 @@ export default function MySubmissions({ submission: initialSubmission, userId }:
               {[
                 { key: 'support_needed', label: 'If we could hand you one thing tomorrow — what?', hint: 'A workshop, tool, mentorship session, or resource — tell us exactly what would move the needle for you.' },
                 { key: 'current_project', label: 'What AI thing are you working on?', hint: "Doesn't have to be big. Even \"I'm using ChatGPT for emails\" counts." },
-                { key: 'challenge', label: "What's making you want to flip a table?", hint: 'Biggest AI-related challenge or pain point.' },
+                { key: 'challenge', label: "What's your biggest AI-related challenge right now?", hint: 'Be specific — vague answers get vague help.' },
               ].map(({ key, label, hint }) => (
                 <div key={key}>
                   <label className="block text-sm font-semibold text-slate-300 mb-0.5">{label}</label>
@@ -197,32 +243,7 @@ export default function MySubmissions({ submission: initialSubmission, userId }:
               </button>
             </motion.div>
           ) : (
-            <motion.div
-              key="view"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="space-y-4 mt-4"
-            >
-              <div>
-                <p className="text-purple-400 text-xs uppercase tracking-wider mb-2">Support Requested</p>
-                <p className="text-white bg-white/5 rounded-xl p-4 text-sm leading-relaxed border border-white/5">
-                  {submission.support_needed}
-                </p>
-              </div>
-              <div>
-                <p className="text-purple-400 text-xs uppercase tracking-wider mb-2">Current AI Initiative</p>
-                <p className="text-white bg-white/5 rounded-xl p-4 text-sm leading-relaxed border border-white/5">
-                  {submission.current_project}
-                </p>
-              </div>
-              <div>
-                <p className="text-purple-400 text-xs uppercase tracking-wider mb-2">Primary Blocker</p>
-                <p className="text-white bg-white/5 rounded-xl p-4 text-sm leading-relaxed border border-white/5">
-                  {submission.biggest_challenge}
-                </p>
-              </div>
-            </motion.div>
+            <AnswerView submission={submission} />
           )}
         </AnimatePresence>
         </div>

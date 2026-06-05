@@ -15,6 +15,7 @@ import TeamView from '@/components/admin/tabs/TeamView'
 import Projects from '@/components/admin/tabs/Projects'
 import BulkTarot from '@/components/admin/tabs/BulkTarot'
 import UserDashboard from '@/components/dashboard/UserDashboard'
+import ThemeToggle from '@/components/ui/ThemeToggle'
 
 function ViewToggle({ viewMode, onChange }: { viewMode: 'admin' | 'user'; onChange: (v: 'admin' | 'user') => void }) {
   return (
@@ -62,7 +63,7 @@ export default function AdminPage() {
   }, [])
 
   if (!ready) return (
-    <div className="min-h-screen" style={{ background: 'radial-gradient(ellipse at top, #1a0533 0%, #0d0d1a 60%)' }}>
+    <div className="min-h-screen page-bg">
       <div className="max-w-6xl mx-auto px-4 py-8">
         <AdminOverviewSkeleton />
       </div>
@@ -71,9 +72,10 @@ export default function AdminPage() {
 
   if (viewMode === 'user' && userId) {
     return (
-      <div style={{ background: 'radial-gradient(ellipse at top, #1a0533 0%, #0d0d1a 60%)' }}>
-        <div className="flex justify-center pt-4 pb-2">
+      <div className="page-bg">
+        <div className="flex justify-center items-center gap-2 pt-4 pb-2">
           <ViewToggle viewMode={viewMode} onChange={setViewMode} />
+          <ThemeToggle />
         </div>
         <UserDashboard userId={userId} />
       </div>
@@ -96,7 +98,7 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="flex min-h-screen" style={{ background: 'radial-gradient(ellipse at top, #1a0533 0%, #0d0d1a 60%)' }}>
+    <div className="flex min-h-screen page-bg">
       <AdminSidebar
         tabs={TABS}
         activeTab={activeTab}
@@ -121,20 +123,26 @@ export default function AdminPage() {
                 <p className="text-slate-400 text-sm">White Rivers Media · AI Champs Program</p>
               </div>
             </div>
-            <ViewToggle viewMode={viewMode} onChange={setViewMode} />
+            <div className="flex items-center gap-2">
+              <ViewToggle viewMode={viewMode} onChange={setViewMode} />
+              <ThemeToggle />
+            </div>
           </div>
 
+          <div style={{ perspective: '1200px' }}>
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.2 }}
+              initial={{ opacity: 0, rotateX: 12, y: 24, scale: 0.97 }}
+              animate={{ opacity: 1, rotateX: 0,  y: 0,  scale: 1   }}
+              exit={{    opacity: 0, rotateX: -8,  y: -16, scale: 0.97 }}
+              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              style={{ transformStyle: 'preserve-3d', transformOrigin: 'center top' }}
             >
               <TabContent />
             </motion.div>
           </AnimatePresence>
+          </div>
         </div>
       </main>
     </div>

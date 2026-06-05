@@ -46,8 +46,8 @@ export default function LearningResources() {
   return (
     <motion.div
       id="resources"
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, y: 24, rotateX: 8, scale: 0.97 }}
+      animate={{ opacity: 1, y: 0,  rotateX: 0, scale: 1   }}
       transition={{ duration: 0.4, delay: 0.3 }}
     >
       <GlassCard>

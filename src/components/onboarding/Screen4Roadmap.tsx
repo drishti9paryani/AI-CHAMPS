@@ -207,174 +207,318 @@ const TEAM_CARDS: Record<string, { id: string; emoji: string; title: string; des
   ],
 }
 
+// ─── Main Component ────────────────────────────────────────────────────────────
+
+function SimpleMarkdown({ content }: { content: string }) {
+  const lines = content.split('\n')
+  return (
+    <div className="space-y-2 text-sm">
+      {lines.map((line, i) => {
+        if (line.startsWith('## ')) return (
+          <h3 key={i} className="text-white font-bold text-base mt-4 mb-1 first:mt-0">{line.slice(3)}</h3>
+        )
+        if (line.startsWith('# ')) return (
+          <h2 key={i} className="text-white font-extrabold text-lg gradient-text">{line.slice(2)}</h2>
+        )
+        if (line.startsWith('**') && line.endsWith('**')) return (
+          <p key={i} className="text-purple-300 font-semibold">{line.slice(2, -2)}</p>
+        )
+        if (line.startsWith('---')) return <hr key={i} className="border-white/10 my-3" />
+        if (line.trim() === '') return <div key={i} className="h-1" />
+        if (line.startsWith('*') && line.endsWith('*')) return (
+          <p key={i} className="text-slate-500 text-xs italic">{line.slice(1, -1)}</p>
+        )
+        return <p key={i} className="text-slate-400 leading-relaxed">{line}</p>
+      })}
+    </div>
+  )
+}
+
+// ── Fallback cards for departments not in TEAM_CARDS ──────────────────────────
 const FALLBACK_CARDS = [
   { id: 'fb1', emoji: '🧠', title: 'Learn Prompting', description: 'Master the art of talking to AI — the skill that multiplies every other skill you have.' },
-  { id: 'fb2', emoji: '⚡', title: 'Automate Something', description: 'Pick one repetitive task and kill it with automation this week.' },
-  { id: 'fb3', emoji: '🎨', title: 'Create with AI', description: 'Make something visual. AI image, video, or design — just ship something.' },
+  { id: 'fb2', emoji: '⚡', title: 'Automate Something', description: 'Pick one repetitive task and eliminate it with automation this week.' },
+  { id: 'fb3', emoji: '🎨', title: 'Create with AI', description: 'Make something visual — AI image, video, or design. Just ship something.' },
   { id: 'fb4', emoji: '📊', title: 'Analyse with AI', description: 'Take a dataset or report and use Claude to extract insights you\'d normally miss.' },
   { id: 'fb5', emoji: '🤝', title: 'Teach Your Team', description: 'Share one AI workflow with a colleague. Teaching is the fastest way to master.' },
   { id: 'fb6', emoji: '🔬', title: 'Run an Experiment', description: 'Try one AI tool you\'ve never used before. Document what surprised you.' },
 ]
 
-// ─── Main Component ────────────────────────────────────────────────────────────
-
 export default function Screen4Roadmap() {
   const router = useRouter()
   const { userId, loading: authLoading } = useOnboardingUser()
   const [finishing, setFinishing] = useState(false)
-  const [mode, setMode] = useState<'fixed' | 'custom'>('fixed')
+  const [mode, setMode] = useState<'fixed' | 'build' | 'guide'>('fixed')
+  const [guideContent, setGuideContent] = useState<string | null>(null)
+  const [selectedCards, setSelectedCards] = useState<Set<string>>(new Set())
+  const [department, setDepartment] = useState<string | null>(null)
+
+  useEffect(() => {
+    fetch('/content/programme-guide.md')
+      .then(r => r.text())
+      .then(setGuideContent)
+      .catch(() => setGuideContent(null))
+  }, [])
 
   useEffect(() => {
     if (!authLoading && !userId) router.replace('/onboarding/register')
+    if (userId) {
+      supabase.from('users').select('department').eq('id', userId).single()
+        .then(({ data }) => setDepartment(data?.department ?? null))
+    }
   }, [authLoading, userId, router])
+
+  function toggleCard(id: string) {
+    setSelectedCards(prev => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
+    })
+  }
 
   async function handleFinish() {
     if (!userId) return
+    if (mode === 'build' && selectedCards.size === 0) {
+      toast.error('Pick at least one skill card to build your path.')
+      return
+    }
     setFinishing(true)
 
     const updatePayload: Record<string, unknown> = {
       onboarding_complete: true,
-      roadmap_mode: mode === 'custom' ? 'fixed' : mode,
+      roadmap_mode: mode === 'build' ? 'custom' : 'fixed',
+      ...(mode === 'build' && { chosen_roadmap_path: [...selectedCards] }),
     }
 
-    const { error } = await supabase
-      .from('users')
-      .update(updatePayload)
-      .eq('id', userId)
+    const { error } = await supabase.from('users').update(updatePayload).eq('id', userId)
+    if (error) { toast.error(`Save failed: ${error.message}`); setFinishing(false); return }
 
-    if (error) {
-      toast.error(`Save failed: ${error.message}`)
-      console.error('Roadmap save error:', error)
-      setFinishing(false)
-      return
-    }
-
-    toast.success('You\'re in. Welcome to the champs. 🏆')
+    toast.success("You're in. Welcome to the champs. 🏆")
     router.push('/dashboard')
   }
+
+  const deptCards = department && TEAM_CARDS[department] ? TEAM_CARDS[department] : FALLBACK_CARDS
 
   if (authLoading || !userId) return <OnboardingPageSkeleton />
 
   return (
     <motion.div
-      initial={{ opacity: 0, x: 40 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -40 }}
-      transition={{ duration: 0.3 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.2 }}
       className="flex flex-col items-center min-h-screen px-4 py-16 md:py-12"
     >
       <div className="w-full max-w-2xl">
         <div className="text-center mb-8">
-          <h2 className="text-2xl sm:text-3xl font-extrabold gradient-text mb-2 tracking-tight">
+          <motion.h2
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-2xl sm:text-3xl font-extrabold gradient-text mb-2 tracking-tight"
+          >
             Pick your path. 🗺️
-          </h2>
+          </motion.h2>
           <p className="text-slate-400 text-sm">
-            Follow the WRM roadmap, or build your own. Either way, you're going somewhere interesting.
+            Follow the WRM roadmap, build your own, or read the full guide.
           </p>
         </div>
 
-        {/* Tab switcher */}
-        <div className="flex gap-2 mb-6 p-1.5 bg-white/5 rounded-2xl border border-white/10">
-          <button
-            onClick={() => setMode('fixed')}
-            className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-              mode === 'fixed'
-                ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg'
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            📅 WRM Roadmap — June 2026
-          </button>
-          <button
-            onClick={() => setMode('custom')}
-            className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-              mode === 'custom'
-                ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg'
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            📄 Full Guide
-          </button>
+        {/* 3-tab switcher */}
+        <div className="flex gap-1.5 mb-6 p-1.5 bg-white/5 rounded-2xl border border-white/10">
+          {[
+            { id: 'fixed', label: '📅 WRM Roadmap' },
+            { id: 'build', label: '🎯 Build Your Own' },
+            { id: 'guide', label: '📄 Full Guide' },
+          ].map(t => (
+            <button
+              key={t.id}
+              onClick={() => setMode(t.id as typeof mode)}
+              className={`flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
+                mode === t.id
+                  ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg shadow-purple-900/30'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
         </div>
 
         <AnimatePresence mode="wait">
-          {mode === 'fixed' ? (
+
+          {/* ── WRM ROADMAP — 3D week cards ──────────────────────────────── */}
+          {mode === 'fixed' && (
             <motion.div
               key="fixed"
-              initial={{ opacity: 0, y: 12 }}
+              initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -12 }}
               transition={{ duration: 0.25 }}
-              className="space-y-4 mb-8"
+              className="space-y-3 mb-8"
+              style={{ perspective: 1000 }}
             >
               {JUNE_WEEKS.map((w, idx) => (
                 <motion.div
                   key={w.week}
-                  initial={{ opacity: 0, x: -16 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: idx * 0.07 }}
-                  className="flex items-start gap-4"
+                  initial={{ opacity: 0, x: -24, rotateY: -8 }}
+                  animate={{ opacity: 1, x: 0, rotateY: 0 }}
+                  transition={{ delay: idx * 0.08, type: 'spring', stiffness: 200, damping: 20 }}
+                  whileHover={{ scale: 1.02, rotateY: 2, z: 20 }}
+                  style={{ transformStyle: 'preserve-3d' }}
+                  className="flex items-stretch gap-0 rounded-2xl overflow-hidden cursor-default
+                    shadow-lg shadow-black/30 hover:shadow-purple-900/30 transition-shadow duration-300"
                 >
-                  <div className="flex flex-col items-center flex-shrink-0">
-                    <div className={`w-11 h-11 rounded-2xl flex items-center justify-center text-xl bg-gradient-to-br ${w.color} shadow-lg`}>
-                      {w.icon}
-                    </div>
-                    {idx < JUNE_WEEKS.length - 1 && (
-                      <div className="w-0.5 h-6 mt-1 bg-purple-500/20" />
-                    )}
+                  {/* Coloured left strip with icon */}
+                  <div className={`w-16 flex-shrink-0 bg-gradient-to-b ${w.color} flex flex-col items-center justify-center gap-1 py-5`}
+                    style={{ boxShadow: 'inset -4px 0 12px rgba(0,0,0,0.3)' }}
+                  >
+                    <span className="text-2xl">{w.icon}</span>
+                    <span className="text-white/60 text-[10px] font-bold uppercase tracking-widest"
+                      style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>
+                      Wk {w.week}
+                    </span>
                   </div>
-                  <GlassCard className="flex-1 !p-4">
-                    <p className="text-purple-400 text-xs uppercase tracking-wider mb-0.5">Week {w.week}</p>
-                    <h3 className="font-bold text-white text-sm mb-1">{w.title}</h3>
+                  {/* Card body */}
+                  <div className="flex-1 bg-white/5 border border-white/10 border-l-0 px-5 py-4
+                    backdrop-blur-sm"
+                    style={{ boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06)' }}
+                  >
+                    <p className="text-purple-400 text-[10px] uppercase tracking-widest font-semibold mb-1">Week {w.week}</p>
+                    <h3 className="font-bold text-white text-sm mb-1.5">{w.title}</h3>
                     <p className="text-slate-400 text-xs leading-relaxed">{w.description}</p>
-                  </GlassCard>
+                  </div>
                 </motion.div>
               ))}
             </motion.div>
-          ) : (
+          )}
+
+          {/* ── BUILD YOUR OWN — 3D skill card picker ────────────────────── */}
+          {mode === 'build' && (
             <motion.div
-              key="custom"
-              initial={{ opacity: 0, y: 12 }}
+              key="build"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.25 }}
+              className="mb-8"
+            >
+              <div className="mb-4 flex items-center justify-between">
+                <div>
+                  <p className="text-white font-semibold text-sm">
+                    {department ? `${department} skills` : 'Skill cards for you'}
+                  </p>
+                  <p className="text-slate-500 text-xs mt-0.5">
+                    Pick the AI skills you want to focus on. Choose at least 1.
+                  </p>
+                </div>
+                {selectedCards.size > 0 && (
+                  <motion.span
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="px-3 py-1 rounded-full bg-purple-500/20 border border-purple-500/40 text-purple-300 text-xs font-bold"
+                  >
+                    {selectedCards.size} selected
+                  </motion.span>
+                )}
+              </div>
+
+              <div className="grid grid-cols-2 gap-3" style={{ perspective: 1000 }}>
+                {deptCards.map((card, idx) => {
+                  const isSelected = selectedCards.has(card.id)
+                  return (
+                    <motion.button
+                      key={card.id}
+                      initial={{ opacity: 0, y: 20, rotateX: 10 }}
+                      animate={{ opacity: 1, y: 0, rotateX: 0 }}
+                      transition={{ delay: idx * 0.05, type: 'spring', stiffness: 220, damping: 22 }}
+                      whileHover={{ scale: 1.04, rotateY: 3, z: 30, y: -4 }}
+                      whileTap={{ scale: 0.97 }}
+                      onClick={() => toggleCard(card.id)}
+                      style={{ transformStyle: 'preserve-3d' }}
+                      className={`relative text-left p-4 rounded-2xl border transition-all duration-200
+                        ${isSelected
+                          ? 'bg-purple-500/20 border-purple-500/60 shadow-lg shadow-purple-900/40'
+                          : 'bg-white/5 border-white/10 hover:border-purple-500/30 hover:bg-white/10'
+                        }`}
+                    >
+                      {/* Glow layer when selected */}
+                      {isSelected && (
+                        <motion.div
+                          layoutId={`glow-${card.id}`}
+                          className="absolute inset-0 rounded-2xl bg-purple-500/10 blur-sm -z-10"
+                        />
+                      )}
+                      {/* Check badge */}
+                      <div className={`absolute top-2.5 right-2.5 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold transition-all
+                        ${isSelected
+                          ? 'bg-purple-500 text-white scale-100'
+                          : 'bg-white/10 text-transparent scale-75'
+                        }`}
+                      >
+                        ✓
+                      </div>
+
+                      <span className="text-2xl mb-2 block"
+                        style={{ filter: isSelected ? 'drop-shadow(0 0 8px rgba(168,85,247,0.6))' : 'none' }}>
+                        {card.emoji}
+                      </span>
+                      <p className={`font-semibold text-sm mb-1 transition-colors ${isSelected ? 'text-purple-200' : 'text-white'}`}>
+                        {card.title}
+                      </p>
+                      <p className="text-slate-500 text-xs leading-relaxed">{card.description}</p>
+                    </motion.button>
+                  )
+                })}
+              </div>
+            </motion.div>
+          )}
+
+          {/* ── FULL GUIDE — markdown ─────────────────────────────────────── */}
+          {mode === 'guide' && (
+            <motion.div
+              key="guide"
+              initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -12 }}
               transition={{ duration: 0.25 }}
               className="mb-8"
             >
               <GlassCard>
-                <h3 className="text-white font-bold mb-1">📄 AI Champs — Full Programme Guide</h3>
-                <p className="text-slate-400 text-xs mb-5">
-                  Everything you need to know about the 4-week programme. Read through, then pick your path above.
-                </p>
-                <div className="space-y-5">
-                  {JUNE_WEEKS.map(w => (
-                    <div key={w.week} className="border-l-2 border-purple-500/30 pl-4">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-base">{w.icon}</span>
-                        <p className="text-white text-sm font-bold">Week {w.week} — {w.title}</p>
-                      </div>
-                      <p className="text-slate-400 text-xs leading-relaxed">{w.description}</p>
-                    </div>
-                  ))}
-                  <div className="border-l-2 border-dashed border-slate-700 pl-4">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-base">📊</span>
-                      <p className="text-slate-500 text-sm font-bold">Admin Dashboard <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-700/50 text-slate-500 border border-slate-700/60 uppercase tracking-wide ml-1">Coming Soon</span></p>
-                    </div>
-                    <p className="text-slate-600 text-xs leading-relaxed">Automated progress tracking and reporting — so admins can monitor learner progress without manual effort.</p>
+                {guideContent ? (
+                  <SimpleMarkdown content={guideContent} />
+                ) : (
+                  <div className="space-y-3">
+                    <div className="h-4 bg-white/10 rounded w-1/2 animate-pulse" />
+                    <div className="h-3 bg-white/5 rounded w-full animate-pulse" />
+                    <div className="h-3 bg-white/5 rounded w-3/4 animate-pulse" />
                   </div>
-                </div>
+                )}
               </GlassCard>
             </motion.div>
           )}
+
         </AnimatePresence>
 
-        <button
+        {/* CTA button */}
+        <motion.button
           onClick={handleFinish}
-          disabled={finishing}
-          className="w-full py-3.5 rounded-xl font-bold text-white bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+          disabled={finishing || (mode === 'build' && selectedCards.size === 0)}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          className="w-full py-4 rounded-2xl font-bold text-white text-base
+            bg-gradient-to-r from-purple-600 to-blue-600
+            hover:from-purple-500 hover:to-blue-500
+            shadow-lg shadow-purple-900/40
+            transition-all disabled:opacity-40 disabled:cursor-not-allowed
+            disabled:shadow-none"
         >
-          {finishing ? 'Almost there...' : 'I\'m in — Enter Dashboard →'}
-        </button>
+          {finishing
+            ? 'Almost there…'
+            : mode === 'build' && selectedCards.size === 0
+              ? 'Select at least one skill →'
+              : mode === 'build'
+                ? `Lock in ${selectedCards.size} skill${selectedCards.size > 1 ? 's' : ''} — Enter Dashboard →`
+                : "I'm in — Enter Dashboard →"}
+        </motion.button>
       </div>
     </motion.div>
   )

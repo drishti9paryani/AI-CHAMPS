@@ -24,10 +24,7 @@ function LoginContent() {
   }
 
   return (
-    <div
-      className="flex min-h-screen items-center justify-center px-4"
-      style={{ background: 'radial-gradient(ellipse at top, #1a0533 0%, #0d0d1a 60%)' }}
-    >
+    <div className="flex min-h-screen items-center justify-center px-4 page-bg">
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
@@ -53,11 +50,10 @@ function LoginContent() {
         {/* Card */}
         <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-8 shadow-2xl">
           <h2 className="text-xl font-bold text-white mb-1 text-center">
-            Oh hey, you showed up. 👀
+            Welcome to AI Champs
           </h2>
           <p className="text-slate-400 text-sm text-center mb-8 leading-relaxed">
-            Sign in with your Google account and let's figure out just how AI-brained you actually are.
-            No pressure. (Okay, a little pressure.)
+            Your AI journey starts here.
           </p>
 
           {errorParam === 'auth_callback_failed' && (
@@ -92,7 +88,7 @@ function LoginContent() {
         </div>
 
         <p className="text-center text-xs text-slate-600 mt-6">
-          By signing in, you agree that AI is actually pretty cool.
+          Your responses are used solely to personalise your AI learning journey and are visible to programme administrators at White Rivers Media.
         </p>
       </motion.div>
     </div>

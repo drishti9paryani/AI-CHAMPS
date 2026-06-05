@@ -7,19 +7,21 @@ export const metadata: Metadata = {
   description: 'AI Champs admin analytics, user management, insights, and roadmap editor.',
 }
 
-const ADMIN_EMAILS = [
-  's@wrd.co.in',
-  'mitchelle@wrd.co.in',
-  'siddhantsethi@wrd.co.in',
-  'yashvigotecha@wrd.co.in',
-  'drishtiparyani@wrd.co.in',
-]
-
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  if (!user || !ADMIN_EMAILS.includes(user.email ?? '')) {
+  if (!user) {
+    redirect('/login')
+  }
+
+  const { data: profile } = await supabase
+    .from('users')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  if (profile?.role !== 'admin') {
     redirect('/dashboard')
   }
 

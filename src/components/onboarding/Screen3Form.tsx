@@ -96,7 +96,7 @@ export default function Screen3Form({ editMode = false }: { editMode?: boolean }
 
     await supabase.from('users').update({ risk_flag }).eq('id', userId)
 
-    toast.success(existingId ? 'Updated! You\'re on it. ✅' : 'Spilled the tea. Let\'s go! ☕')
+    toast.success(existingId ? 'Answers updated ✅' : 'Submitted! Welcome to AI Champs 🚀')
     setLoading(false)
 
     if (editMode) {
@@ -110,43 +110,26 @@ export default function Screen3Form({ editMode = false }: { editMode?: boolean }
 
   return (
     <motion.div
-      initial={{ opacity: 0, x: 40 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -40 }}
-      transition={{ duration: 0.3 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.2 }}
       className="flex flex-col items-center justify-center min-h-screen px-4 py-12"
     >
       <div className="w-full max-w-lg">
         <div className="text-center mb-8">
           <h2 className="text-2xl sm:text-3xl font-extrabold gradient-text mb-2 tracking-tight">
-            {existingId ? 'Update your answers 📝' : 'Spill the tea ☕'}
+            {existingId ? 'Update your answers 📝' : 'Three quick questions'}
           </h2>
           <p className="text-slate-400 text-sm">
             {existingId
-              ? 'Changed your mind? Things moved? Update away — we won\'t judge.'
-              : 'Three questions. No right answers. Just be honest (we can handle it).'}
+              ? 'Updated answers help us give you better support. Takes 2 minutes.'
+              : 'Help us understand where you are with AI so we can support you properly.'}
           </p>
         </div>
 
         <GlassCard>
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label className="block text-sm font-semibold text-slate-300 mb-1">
-                What's making you want to flip a table?
-              </label>
-              <p className="text-xs text-slate-500 mb-2">
-                Biggest AI-related challenge or pain point. Be specific — vague answers get vague help.
-              </p>
-              <textarea
-                required
-                rows={3}
-                value={form.challenge}
-                onChange={e => setForm({ ...form, challenge: e.target.value })}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition resize-none"
-                placeholder="What's been hard or frustrating?"
-              />
-            </div>
-
+            {/* Q2 first */}
             <div>
               <label className="block text-sm font-semibold text-slate-300 mb-1">
                 If we could hand you one thing tomorrow — what?
@@ -164,6 +147,7 @@ export default function Screen3Form({ editMode = false }: { editMode?: boolean }
               />
             </div>
 
+            {/* Q3 second */}
             <div>
               <label className="block text-sm font-semibold text-slate-300 mb-1">
                 What AI thing are you working on?
@@ -178,6 +162,24 @@ export default function Screen3Form({ editMode = false }: { editMode?: boolean }
                 onChange={e => setForm({ ...form, current_project: e.target.value })}
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition resize-none"
                 placeholder="Tell us what you're up to..."
+              />
+            </div>
+
+            {/* Q1 last */}
+            <div>
+              <label className="block text-sm font-semibold text-slate-300 mb-1">
+                What's your biggest AI-related challenge right now?
+              </label>
+              <p className="text-xs text-slate-500 mb-2">
+                Be specific — vague answers get vague help.
+              </p>
+              <textarea
+                required
+                rows={3}
+                value={form.challenge}
+                onChange={e => setForm({ ...form, challenge: e.target.value })}
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition resize-none"
+                placeholder="What's been hard or frustrating?"
               />
             </div>
 

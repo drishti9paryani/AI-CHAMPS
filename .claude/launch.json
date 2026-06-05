@@ -5,8 +5,9 @@
       "name": "ai-champs",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
+      "cwd": "C:\\Users\\Dell\\Downloads\\Work\\AI CHAMPS\\ai-champs",
       "port": 3000,
-      "autoPort": true
+      "autoPort": false
     }
   ]
 }

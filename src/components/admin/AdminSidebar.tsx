@@ -1,5 +1,8 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
+import { signOut } from '@/lib/auth'
+
 interface Tab {
   id: string
   label: string
@@ -15,6 +18,13 @@ interface AdminSidebarProps {
 }
 
 export default function AdminSidebar({ tabs, activeTab, onTabChange, mobileOpen, onMobileClose }: AdminSidebarProps) {
+  const router = useRouter()
+
+  async function handleSignOut() {
+    await signOut()
+    router.push('/login')
+  }
+
   const nav = (
     <nav className="flex flex-col gap-1 p-3">
       {tabs.map(t => (
@@ -43,7 +53,7 @@ export default function AdminSidebar({ tabs, activeTab, onTabChange, mobileOpen,
           <p className="text-slate-500 text-xs mt-1">AI Champs Control</p>
         </div>
         {nav}
-        <div className="mt-auto p-4 border-t border-white/10">
+        <div className="mt-auto p-4 border-t border-white/10 space-y-2">
           <a
             href="/dashboard"
             className="flex items-center gap-2 w-full px-3 py-2 rounded-xl text-sm font-medium bg-white/5 border border-white/10 text-slate-300 hover:text-white hover:bg-white/10 transition"
@@ -51,6 +61,13 @@ export default function AdminSidebar({ tabs, activeTab, onTabChange, mobileOpen,
             <span>👤</span>
             Switch to Champ View
           </a>
+          <button
+            onClick={handleSignOut}
+            className="flex items-center gap-2 w-full px-3 py-2 rounded-xl text-sm font-medium text-slate-500 hover:text-slate-300 hover:bg-white/5 border border-transparent transition"
+          >
+            <span>↩</span>
+            Sign Out
+          </button>
         </div>
       </aside>
 

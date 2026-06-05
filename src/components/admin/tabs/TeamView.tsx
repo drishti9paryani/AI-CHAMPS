@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import GlassCard from '@/components/ui/GlassCard'
 
-const TOTAL_WEEKS = 12
+const TOTAL_WEEKS = 4
 
 interface TeamData {
   dept: string

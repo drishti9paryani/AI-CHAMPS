@@ -6,10 +6,12 @@ import { toast } from '@/lib/toast'
 import type { TarotCardData } from '@/lib/tarotConstants'
 import DashboardLayout from '@/components/dashboard/DashboardLayout'
 import ProfileCard from '@/components/dashboard/ProfileCard'
-import TarotSection from '@/components/dashboard/TarotSection'
+import ArchetypeDrawer from '@/components/dashboard/ArchetypeDrawer'
 import MySubmissions from '@/components/dashboard/MySubmissions'
 import RoadmapProgress from '@/components/dashboard/RoadmapProgress'
 import LearningResources from '@/components/dashboard/LearningResources'
+import BookingSection from '@/components/dashboard/BookingSection'
+import NextStep from '@/components/dashboard/NextStep'
 import DashboardSkeleton from '@/components/ui/skeletons/DashboardSkeleton'
 
 interface UserData {
@@ -70,28 +72,32 @@ export default function UserDashboard({ userId }: { userId: string }) {
 
   if (!user) {
     return (
-      <div className="flex items-center justify-center min-h-screen px-4" style={{ background: '#0d0d1a' }}>
+      <div className="flex items-center justify-center min-h-screen px-4 page-bg">
         <p className="text-slate-400 text-sm text-center">Unable to load dashboard. Please try signing in again.</p>
       </div>
     )
   }
 
   return (
-    <DashboardLayout userName={user.name} isAdmin={user.role === 'admin'}>
+    <>
+      <ArchetypeDrawer card={user.tarot_card_data} cardType={user.tarot_card_type} />
+      <DashboardLayout userName={user.name} isAdmin={user.role === 'admin'}>
       <ProfileCard
         name={user.name}
         department={user.department}
         email={user.email}
         aiScore={user.ai_score}
       />
-      <TarotSection card={user.tarot_card_data} cardType={user.tarot_card_type} />
+      <NextStep currentWeek={user.current_week ?? 1} name={user.name} />
       <MySubmissions submission={submission} userId={userId} />
       <RoadmapProgress
         currentWeek={user.current_week ?? 1}
         roadmapMode={user.roadmap_mode}
         chosenPath={user.chosen_roadmap_path}
       />
+      <BookingSection />
       <LearningResources />
     </DashboardLayout>
+    </>
   )
 }
