@@ -42,9 +42,9 @@ const JUNE_WEEKS = [
   },
 ]
 
-// ─── Main Component ────────────────────────────────────────────────────────────
-/* NOTE: TEAM_CARDS and FALLBACK_CARDS removed — custom card path replaced by Full Guide view */
-const _PLACEHOLDER = null // keeps linter happy
+// ─── Team Cards ───────────────────────────────────────────────────────────────
+
+const TEAM_CARDS: Record<string, { id: string; emoji: string; title: string; description: string }[]> = {
   'Video Production': [
     { id: 'vp1', emoji: '🗓️', title: 'AI Pre-Production', description: 'Use AI to generate call sheets, shot lists and production schedules in minutes.' },
     { id: 'vp2', emoji: '🔤', title: 'Auto Transcription', description: 'Whisper-powered transcription and subtitle generation — no more manual time-coding.' },

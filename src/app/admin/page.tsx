@@ -14,6 +14,27 @@ import ManageRoadmap from '@/components/admin/tabs/ManageRoadmap'
 import TeamView from '@/components/admin/tabs/TeamView'
 import Projects from '@/components/admin/tabs/Projects'
 import BulkTarot from '@/components/admin/tabs/BulkTarot'
+import UserDashboard from '@/components/dashboard/UserDashboard'
+
+function ViewToggle({ viewMode, onChange }: { viewMode: 'admin' | 'user'; onChange: (v: 'admin' | 'user') => void }) {
+  return (
+    <div className="flex items-center gap-1 bg-white/5 border border-white/10 rounded-xl p-1">
+      {(['admin', 'user'] as const).map(v => (
+        <button
+          key={v}
+          onClick={() => onChange(v)}
+          className={`px-4 py-1.5 rounded-lg text-sm font-medium transition ${
+            viewMode === v
+              ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow'
+              : 'text-slate-400 hover:text-white'
+          }`}
+        >
+          {v === 'admin' ? '🛡 Admin View' : '👤 Champ View'}
+        </button>
+      ))}
+    </div>
+  )
+}
 
 const TABS = [
   { id: 'overview', label: 'Overview', icon: '📊' },
