@@ -429,9 +429,6 @@ export default function AllUsers() {
                       {suspicious && (
                         <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30" title="Non-WRM email">⚠️ External</span>
                       )}
-                      {hasArchetypeButIncomplete && (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-500/20 text-red-300 border border-red-500/30" title="Has archetype but onboarding incomplete — data inconsistency">⚠️ Check</span>
-                      )}
                     </div>
                   </td>
 

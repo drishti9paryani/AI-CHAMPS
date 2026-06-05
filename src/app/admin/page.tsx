@@ -75,7 +75,6 @@ export default function AdminPage() {
       <div className="page-bg">
         <div className="flex justify-center items-center gap-2 pt-4 pb-2">
           <ViewToggle viewMode={viewMode} onChange={setViewMode} />
-          <ThemeToggle />
         </div>
         <UserDashboard userId={userId} />
       </div>

@@ -53,7 +53,7 @@ export default function TeamView() {
 
       const map: Record<string, { ids: string[]; scoreSum: number; scoreCount: number; weekSum: number; weekCount: number; atRisk: number }> = {}
       users.forEach(u => {
-        const d = u.department || 'Unknown'
+        const d = u.department || 'Unassigned'
         if (!map[d]) map[d] = { ids: [], scoreSum: 0, scoreCount: 0, weekSum: 0, weekCount: 0, atRisk: 0 }
         map[d].ids.push(u.id)
         if (u.ai_score != null) { map[d].scoreSum += u.ai_score; map[d].scoreCount++ }

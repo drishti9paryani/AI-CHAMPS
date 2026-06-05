@@ -236,65 +236,6 @@ export default function Overview() {
         </GlassCard>
       </div>
 
-      <GlassCard>
-        <h3 className="text-base font-semibold text-white mb-4">Team Leaderboard</h3>
-        {stats.teamLeaderboard.length === 0 ? (
-          <p className="text-slate-500 text-sm">No team data yet</p>
-        ) : (
-          <div className="space-y-3">
-            {stats.teamLeaderboard.slice(0, 5).map((team, i) => (
-              <div key={team.dept} className="flex items-center gap-4">
-                <span className="text-lg w-7 flex-shrink-0 text-center">
-                  {['🥇', '🥈', '🥉', '4', '5'][i]}
-                </span>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-white text-sm font-medium truncate">{team.dept}</span>
-                    <span className="text-slate-400 text-xs ml-2 flex-shrink-0">
-                      {team.count} champs · {team.avgScore}/5 · {team.completion}%
-                    </span>
-                  </div>
-                  <div className="w-full bg-white/10 rounded-full h-1.5">
-                    <div
-                      className="h-1.5 rounded-full bg-gradient-to-r from-purple-500 to-blue-500"
-                      style={{ width: `${team.completion}%` }}
-                    />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </GlassCard>
-
-      {/* ── New: Programme Week Completion Rate ─────────────────────────── */}
-      <GlassCard>
-        <h3 className="text-base font-semibold text-white mb-1">Completion Rate per Week</h3>
-        <p className="text-slate-500 text-xs mb-4">% of enrolled participants who have reached or completed each programme week</p>
-        {stats.weekCompletion.every(w => w.count === 0) ? (
-          <p className="text-slate-500 text-sm">No completion data yet</p>
-        ) : (
-          <div className="space-y-3">
-            {stats.weekCompletion.map((w, i) => (
-              <div key={w.week} className="flex items-center gap-3">
-                <span className="text-xs text-slate-400 w-14 flex-shrink-0">{w.week}</span>
-                <div className="flex-1 bg-white/10 rounded-full h-2">
-                  <div
-                    className="h-2 rounded-full transition-all duration-500"
-                    style={{ width: `${w.pct}%`, background: COLORS[i] }}
-                  />
-                </div>
-                <span className="text-xs font-semibold w-16 text-right flex-shrink-0" style={{ color: COLORS[i] }}>
-                  {w.pct}% ({w.count})
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
-        <p className="text-slate-600 text-[10px] mt-4">
-          ⚠️ Drop-off point: most participants are currently on <span className="text-amber-400 font-semibold">Week {stats.dropOffWeek}</span>
-        </p>
-      </GlassCard>
 
       {/* ── New: Top Performers ─────────────────────────────────────────── */}
       <GlassCard>

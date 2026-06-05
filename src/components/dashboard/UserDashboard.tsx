@@ -11,7 +11,6 @@ import MySubmissions from '@/components/dashboard/MySubmissions'
 import RoadmapProgress from '@/components/dashboard/RoadmapProgress'
 import LearningResources from '@/components/dashboard/LearningResources'
 import BookingSection from '@/components/dashboard/BookingSection'
-import NextStep from '@/components/dashboard/NextStep'
 import DashboardSkeleton from '@/components/ui/skeletons/DashboardSkeleton'
 
 interface UserData {
@@ -88,7 +87,6 @@ export default function UserDashboard({ userId }: { userId: string }) {
         email={user.email}
         aiScore={user.ai_score}
       />
-      <NextStep currentWeek={user.current_week ?? 1} name={user.name} />
       <MySubmissions submission={submission} userId={userId} />
       <RoadmapProgress
         currentWeek={user.current_week ?? 1}

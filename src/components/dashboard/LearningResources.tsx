@@ -30,7 +30,7 @@ const WEEK_LABELS: Record<number, string> = {
   1: "Week 1 — Anything You'd Like",
   2: 'Week 2 — Script & Image Generation',
   3: 'Week 3 — AI Influencer / Avatar & Music',
-  4: 'Week 4 — Direct 2-Minute Movie',
+  4: 'Week 4: Direct 2-Minute Movie',
 }
 
 const WEEK_COLORS: Record<number, string> = {

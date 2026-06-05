@@ -3,15 +3,12 @@
 import { motion } from 'framer-motion'
 import GlassCard from '@/components/ui/GlassCard'
 
-// ── TODO: Replace with real Calendly / Google Calendar booking URL ─────────────
-const AI_TEAM_BOOKING_URL = 'https://calendly.com/ai-champs-wrm'
+const AI_TEAM_BOOKING_URL =
+  'https://calendar.google.com/calendar/render?action=TEMPLATE&text=AI+Champs+Check-in&add=siddhantsethi@wrd.co.in&add=drishtiparyani@wrd.co.in'
 
-// ── Contact list (all programme admins) ───────────────────────────────────────
 const CONTACTS = [
-  { name: 'Drishti Paryani',  email: 'drishtiparyani@wrd.co.in',  role: 'Programme Lead' },
-  { name: 'Siddhant Sethi',   email: 'siddhantsethi@wrd.co.in',   role: 'AI Champs Coordinator' },
-  { name: 'Yashvi Gotecha',   email: 'yashvigotecha@wrd.co.in',   role: 'Programme Support' },
-  { name: 'Mitchelle',        email: 'mitchelle@wrd.co.in',        role: 'Programme Support' },
+  { name: 'Siddhant Sethi',  email: 'siddhantsethi@wrd.co.in' },
+  { name: 'Drishti Paryani', email: 'drishtiparyani@wrd.co.in' },
 ]
 
 export default function BookingSection() {
@@ -55,7 +52,6 @@ export default function BookingSection() {
               <div key={c.email} className="flex items-center justify-between gap-4">
                 <div className="min-w-0">
                   <span className="text-white text-sm font-medium">{c.name}</span>
-                  <span className="text-slate-500 text-xs ml-2">· {c.role}</span>
                 </div>
                 <a
                   href={`mailto:${c.email}`}

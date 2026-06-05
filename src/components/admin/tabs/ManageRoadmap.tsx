@@ -16,7 +16,7 @@ export default function ManageRoadmap() {
   async function load() {
     setLoading(true)
     const data = await seedRoadmapIfEmpty(supabase)
-    setWeeks(data.sort((a, b) => a.week_number - b.week_number))
+    setWeeks(data.filter(w => w.week_number <= 4).sort((a, b) => a.week_number - b.week_number))
     setLoading(false)
   }
 
