@@ -12,7 +12,7 @@ interface Row {
   'AI Score': number
   'Tarot Card Type': string
   Project: string
-  'Pain Point': string
+  'Biggest Challenge': string
   'Support Requested': string
   'Risk Flag': string
 }
@@ -23,8 +23,8 @@ async function fetchRows(): Promise<Row[]> {
 
   return Promise.all(users.map(async u => {
     const { data: sub } = await supabase
-      .from('submissions')
-      .select('current_project,challenge,support_needed')
+      .from('champ_forms')
+      .select('current_project, biggest_challenge, support_needed')
       .eq('user_id', u.id)
       .order('created_at', { ascending: false })
       .limit(1)
@@ -36,7 +36,7 @@ async function fetchRows(): Promise<Row[]> {
       'AI Score': u.ai_score,
       'Tarot Card Type': u.tarot_card_type || '',
       Project: sub?.current_project || '',
-      'Pain Point': sub?.challenge || '',
+      'Biggest Challenge': sub?.biggest_challenge || '',
       'Support Requested': sub?.support_needed || '',
       'Risk Flag': u.risk_flag,
     }
@@ -102,7 +102,7 @@ export default function Export() {
       <GlassCard>
         <h4 className="text-sm font-medium text-slate-400 mb-3">Fields included in export</h4>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-          {['Name', 'Department', 'Email', 'AI Score', 'Tarot Card Type', 'Project', 'Pain Point', 'Support Requested', 'Risk Flag'].map(f => (
+          {['Name', 'Department', 'Email', 'AI Score', 'Tarot Card Type', 'Project', 'Biggest Challenge', 'Support Requested', 'Risk Flag'].map(f => (
             <div key={f} className="bg-white/5 rounded-lg px-3 py-2 text-slate-300 text-sm">{f}</div>
           ))}
         </div>

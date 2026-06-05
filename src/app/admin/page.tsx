@@ -11,12 +11,18 @@ import AIInsights from '@/components/admin/tabs/AIInsights'
 import RiskFlags from '@/components/admin/tabs/RiskFlags'
 import Export from '@/components/admin/tabs/Export'
 import ManageRoadmap from '@/components/admin/tabs/ManageRoadmap'
+import TeamView from '@/components/admin/tabs/TeamView'
+import Projects from '@/components/admin/tabs/Projects'
+import BulkTarot from '@/components/admin/tabs/BulkTarot'
 
 const TABS = [
   { id: 'overview', label: 'Overview', icon: '📊' },
-  { id: 'users', label: 'All Users', icon: '👥' },
+  { id: 'champions', label: 'Champions', icon: '👥' },
+  { id: 'teams', label: 'Team View', icon: '🏢' },
+  { id: 'risk', label: 'Risk Centre', icon: '🚨' },
+  { id: 'projects', label: 'Projects', icon: '🚀' },
   { id: 'insights', label: 'AI Insights', icon: '🤖' },
-  { id: 'risk', label: 'Risk Flags', icon: '🚨' },
+  { id: 'tarot', label: 'Bulk Tarot', icon: '✨' },
   { id: 'export', label: 'Export', icon: '📤' },
   { id: 'roadmap', label: 'Roadmap Editor', icon: '🗺️' },
 ]
@@ -44,9 +50,12 @@ export default function AdminPage() {
   const TabContent = () => {
     switch (activeTab) {
       case 'overview': return <Overview />
-      case 'users': return <AllUsers />
-      case 'insights': return <AIInsights />
+      case 'champions': return <AllUsers />
+      case 'teams': return <TeamView />
       case 'risk': return <RiskFlags />
+      case 'projects': return <Projects />
+      case 'insights': return <AIInsights />
+      case 'tarot': return <BulkTarot />
       case 'export': return <Export />
       case 'roadmap': return <ManageRoadmap />
       default: return null

@@ -13,10 +13,11 @@ const NAV_ITEMS = [
 
 interface DashboardLayoutProps {
   userName: string
+  isAdmin?: boolean
   children: React.ReactNode
 }
 
-export default function DashboardLayout({ userName, children }: DashboardLayoutProps) {
+export default function DashboardLayout({ userName, isAdmin, children }: DashboardLayoutProps) {
   const [activeSection, setActiveSection] = useState('profile')
 
   function scrollToSection(id: string) {
@@ -54,7 +55,16 @@ export default function DashboardLayout({ userName, children }: DashboardLayoutP
             </button>
           ))}
         </nav>
-        <div className="p-4 border-t border-white/10">
+        <div className="p-4 border-t border-white/10 space-y-2">
+          {isAdmin && (
+            <a
+              href="/admin"
+              className="flex items-center gap-2 w-full px-3 py-2 rounded-xl text-sm font-medium bg-purple-500/10 border border-purple-500/20 text-purple-300 hover:bg-purple-500/20 transition"
+            >
+              <span>⚡</span>
+              Switch to Admin
+            </a>
+          )}
           <p className="text-slate-600 text-xs text-center">White Rivers Media</p>
         </div>
       </aside>

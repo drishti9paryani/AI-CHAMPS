@@ -150,12 +150,12 @@ const DEPT_PROFILES: Record<string, DeptProfile> = {
 }
 
 const SCORE_TO_CARD: [number, string][] = [
-  [2, 'The AI Explorer'],
-  [4, 'The Curious Hacker'],
-  [6, 'The Prompt Wizard'],
-  [8, 'The Workflow Architect'],
-  [9, 'The Automation Monk'],
-  [10, 'The Agent Builder'],
+  [1, 'The AI Explorer'],
+  [2, 'The Curious Hacker'],
+  [3, 'The Prompt Wizard'],
+  [4, 'The Workflow Architect'],
+  [4.5, 'The Automation Monk'],
+  [5, 'The Agent Builder'],
 ]
 
 const SCORE_TITLES: Record<string, string[]> = {

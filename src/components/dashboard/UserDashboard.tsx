@@ -22,6 +22,7 @@ interface UserData {
   tarot_card_data: TarotCardData | null
   roadmap_mode: string | null
   chosen_roadmap_path: string[] | null
+  role: string
 }
 
 interface Submission {
@@ -41,7 +42,7 @@ export default function UserDashboard({ userId }: { userId: string }) {
         const [{ data: u, error: userErr }, { data: s }] = await Promise.all([
           supabase
             .from('users')
-            .select('name, department, email, ai_score, current_week, tarot_card_type, tarot_card_data, roadmap_mode, chosen_roadmap_path')
+            .select('name, department, email, ai_score, current_week, tarot_card_type, tarot_card_data, roadmap_mode, chosen_roadmap_path, role')
             .eq('id', userId)
             .single(),
           supabase
@@ -76,7 +77,7 @@ export default function UserDashboard({ userId }: { userId: string }) {
   }
 
   return (
-    <DashboardLayout userName={user.name}>
+    <DashboardLayout userName={user.name} isAdmin={user.role === 'admin'}>
       <ProfileCard
         name={user.name}
         department={user.department}

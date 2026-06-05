@@ -44,7 +44,13 @@ export default function AdminSidebar({ tabs, activeTab, onTabChange, mobileOpen,
         </div>
         {nav}
         <div className="mt-auto p-4 border-t border-white/10">
-          <a href="/dashboard" className="text-slate-400 hover:text-white text-sm transition">← User Dashboard</a>
+          <a
+            href="/dashboard"
+            className="flex items-center gap-2 w-full px-3 py-2 rounded-xl text-sm font-medium bg-white/5 border border-white/10 text-slate-300 hover:text-white hover:bg-white/10 transition"
+          >
+            <span>👤</span>
+            Switch to Champ View
+          </a>
         </div>
       </aside>
 
