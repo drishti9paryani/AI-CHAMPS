@@ -31,11 +31,12 @@ export default function AdminPage() {
   const [ready, setReady] = useState(false)
   const [activeTab, setActiveTab] = useState('overview')
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [viewMode, setViewMode] = useState<'admin' | 'user'>('admin')
+  const [userId, setUserId] = useState<string | null>(null)
 
   useEffect(() => {
-    // Middleware already enforces admin role — this just waits for auth to settle
     supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) setReady(true)
+      if (user) { setReady(true); setUserId(user.id) }
     })
   }, [])
 
@@ -46,6 +47,17 @@ export default function AdminPage() {
       </div>
     </div>
   )
+
+  if (viewMode === 'user' && userId) {
+    return (
+      <div style={{ background: 'radial-gradient(ellipse at top, #1a0533 0%, #0d0d1a 60%)' }}>
+        <div className="flex justify-center pt-4 pb-2">
+          <ViewToggle viewMode={viewMode} onChange={setViewMode} />
+        </div>
+        <UserDashboard userId={userId} />
+      </div>
+    )
+  }
 
   const TabContent = () => {
     switch (activeTab) {
@@ -88,6 +100,7 @@ export default function AdminPage() {
                 <p className="text-slate-400 text-sm">White Rivers Media · AI Champs Program</p>
               </div>
             </div>
+            <ViewToggle viewMode={viewMode} onChange={setViewMode} />
           </div>
 
           <AnimatePresence mode="wait">

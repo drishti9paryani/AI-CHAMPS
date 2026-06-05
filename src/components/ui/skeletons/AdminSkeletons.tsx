@@ -123,3 +123,95 @@ export function TarotCardSkeleton() {
     </div>
   )
 }
+
+export function AdminChampionSkeleton() {
+  return (
+    <div className="space-y-6">
+      <Skeleton className="h-10 w-full max-w-md" />
+      <GlassCard className="space-y-4">
+        <div className="flex gap-4 items-start">
+          <Skeleton className="h-16 w-16 rounded-full flex-shrink-0" />
+          <div className="flex-1 space-y-2">
+            <Skeleton className="h-6 w-48" />
+            <Skeleton className="h-4 w-32" />
+          </div>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-16 w-full" />
+          ))}
+        </div>
+      </GlassCard>
+      <GlassCard className="space-y-3">
+        <Skeleton className="h-5 w-36" />
+        {Array.from({ length: 3 }).map((_, i) => (
+          <Skeleton key={i} className="h-14 w-full" />
+        ))}
+      </GlassCard>
+    </div>
+  )
+}
+
+export function AdminTeamSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <GlassCard key={i} className="space-y-2">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-8 w-16" />
+          </GlassCard>
+        ))}
+      </div>
+      <GlassCard>
+        <Skeleton className="h-5 w-40 mb-4" />
+        {Array.from({ length: 5 }).map((_, i) => (
+          <Skeleton key={i} className="h-12 w-full mb-2" />
+        ))}
+      </GlassCard>
+    </div>
+  )
+}
+
+export function AdminProjectsSkeleton() {
+  return (
+    <div className="space-y-4">
+      <div className="flex gap-3 flex-wrap">
+        <Skeleton className="h-10 flex-1 min-w-[200px]" />
+        <Skeleton className="h-10 w-40" />
+        <Skeleton className="h-10 w-40" />
+      </div>
+      <div className="grid sm:grid-cols-3 gap-3">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <Skeleton key={i} className="h-16 w-full" />
+        ))}
+      </div>
+      {Array.from({ length: 4 }).map((_, i) => (
+        <Skeleton key={i} className="h-20 w-full" />
+      ))}
+    </div>
+  )
+}
+
+export function AdminRiskCentreSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <GlassCard key={i} className="space-y-2">
+            <Skeleton className="h-4 w-20" />
+            <Skeleton className="h-8 w-10" />
+          </GlassCard>
+        ))}
+      </div>
+      <div className="flex gap-3">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <Skeleton key={i} className="h-9 w-28" />
+        ))}
+      </div>
+      {Array.from({ length: 4 }).map((_, i) => (
+        <Skeleton key={i} className="h-20 w-full" />
+      ))}
+    </div>
+  )
+}

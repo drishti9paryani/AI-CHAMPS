@@ -8,7 +8,6 @@ import { useOnboardingUser } from '@/lib/useOnboardingUser'
 import { OnboardingPageSkeleton } from '@/components/ui/skeletons/AdminSkeletons'
 import { supabase } from '@/lib/supabase'
 import { toast } from '@/lib/toast'
-import { TEAM_CARDS as TEAM_CARDS_DATA, FALLBACK_CARDS as FALLBACK_CARDS_DATA } from '@/lib/teamCards'
 
 // ─── Fixed June 2026 Milestones ───────────────────────────────────────────────
 
@@ -43,17 +42,9 @@ const JUNE_WEEKS = [
   },
 ]
 
-// ─── Team-specific cards for custom path ──────────────────────────────────────
-
-const TEAM_CARDS: Record<string, { id: string; title: string; emoji: string; description: string }[]> = {
-  'Video': [
-    { id: 'v1', emoji: '🎬', title: 'Master Sora', description: 'Generate cinematic video with OpenAI Sora. From prompt to final cut.' },
-    { id: 'v2', emoji: '✂️', title: 'AI-Assisted Editing', description: 'Use Descript or Runway to cut, clean and caption videos in a fraction of the time.' },
-    { id: 'v3', emoji: '🎙️', title: 'Voice Cloning', description: 'Clone a voice with ElevenLabs and dub content without a recording booth.' },
-    { id: 'v4', emoji: '📝', title: 'AI Scriptwriting', description: 'Use Claude to write, punch up or adapt scripts for any format.' },
-    { id: 'v5', emoji: '🎭', title: 'AI Storyboarding', description: 'Turn a brief into a full visual storyboard using Midjourney + prompting frameworks.' },
-    { id: 'v6', emoji: '🌐', title: 'Multilingual Dubbing', description: 'Automatically translate and dub your videos into multiple languages at scale.' },
-  ],
+// ─── Main Component ────────────────────────────────────────────────────────────
+/* NOTE: TEAM_CARDS and FALLBACK_CARDS removed — custom card path replaced by Full Guide view */
+const _PLACEHOLDER = null // keeps linter happy
   'Video Production': [
     { id: 'vp1', emoji: '🗓️', title: 'AI Pre-Production', description: 'Use AI to generate call sheets, shot lists and production schedules in minutes.' },
     { id: 'vp2', emoji: '🔤', title: 'Auto Transcription', description: 'Whisper-powered transcription and subtitle generation — no more manual time-coding.' },
@@ -225,103 +216,6 @@ const FALLBACK_CARDS = [
   { id: 'fb6', emoji: '🔬', title: 'Run an Experiment', description: 'Try one AI tool you\'ve never used before. Document what surprised you.' },
 ]
 
-// ─── Card Grid Component ───────────────────────────────────────────────────────
-
-function CardGrid({
-  department,
-  selected,
-  onToggle,
-}: {
-  department: string
-  selected: string[]
-  onToggle: (id: string) => void
-}) {
-  const cards = TEAM_CARDS_DATA[department] ?? FALLBACK_CARDS_DATA
-  const [page, setPage] = useState(0)
-  const perPage = 3
-  const totalPages = Math.ceil(cards.length / perPage)
-  const visible = cards.slice(page * perPage, page * perPage + perPage)
-
-  return (
-    <div className="flex flex-col gap-4">
-      <p className="text-slate-400 text-sm text-center">
-        Tap a card to add it to your path · {selected.length} selected
-      </p>
-
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        {visible.map(card => {
-          const isSelected = selected.includes(card.id)
-          return (
-            <motion.button
-              key={card.id}
-              type="button"
-              onClick={() => onToggle(card.id)}
-              whileTap={{ scale: 0.97 }}
-              className={`text-left rounded-2xl border p-4 flex flex-col gap-2 transition-all duration-150 cursor-pointer ${
-                isSelected
-                  ? 'bg-purple-700/60 border-purple-400/80 shadow-lg shadow-purple-500/20'
-                  : 'bg-[#1e1b2e] border-[#2e2a45] hover:border-purple-500/50 hover:bg-[#231f35]'
-              }`}
-            >
-              <div className="text-3xl">{card.emoji}</div>
-              <div>
-                <p className={`font-bold text-sm leading-snug ${isSelected ? 'text-purple-200' : 'text-white'}`}>
-                  {card.title}
-                </p>
-                <p className="text-xs text-slate-400 leading-relaxed mt-1 line-clamp-3">
-                  {card.description}
-                </p>
-              </div>
-              {isSelected && (
-                <p className="text-xs font-semibold text-purple-300">✓ Added</p>
-              )}
-            </motion.button>
-          )
-        })}
-      </div>
-
-      <div className="flex items-center justify-between">
-        <button
-          onClick={() => setPage(p => Math.max(0, p - 1))}
-          disabled={page === 0}
-          className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white hover:bg-white/10 transition text-sm disabled:opacity-30"
-        >
-          ← Prev
-        </button>
-        <span className="text-xs text-slate-500">{page + 1} / {totalPages}</span>
-        <button
-          onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
-          disabled={page === totalPages - 1}
-          className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white hover:bg-white/10 transition text-sm disabled:opacity-30"
-        >
-          Next →
-        </button>
-      </div>
-
-      {selected.length > 0 && (
-        <div>
-          <p className="text-xs text-slate-500 uppercase tracking-wider mb-2">Your path</p>
-          <div className="flex flex-wrap gap-2">
-            {selected.map(id => {
-              const card = cards.find(c => c.id === id)
-              if (!card) return null
-              return (
-                <span
-                  key={id}
-                  onClick={() => onToggle(id)}
-                  className="text-xs px-3 py-1.5 rounded-full bg-purple-500/20 border border-purple-500/40 text-purple-300 flex items-center gap-1.5 cursor-pointer hover:bg-red-500/20 hover:border-red-500/40 hover:text-red-300 transition"
-                >
-                  {card.emoji} {card.title} <span>×</span>
-                </span>
-              )
-            })}
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
-
 // ─── Main Component ────────────────────────────────────────────────────────────
 
 export default function Screen4Roadmap() {
@@ -329,42 +223,18 @@ export default function Screen4Roadmap() {
   const { userId, loading: authLoading } = useOnboardingUser()
   const [finishing, setFinishing] = useState(false)
   const [mode, setMode] = useState<'fixed' | 'custom'>('fixed')
-  const [selectedCards, setSelectedCards] = useState<string[]>([])
-  const [department, setDepartment] = useState('')
 
   useEffect(() => {
     if (!authLoading && !userId) router.replace('/onboarding/register')
   }, [authLoading, userId, router])
 
-  useEffect(() => {
-    if (!userId) return
-    supabase.from('users').select('department').eq('id', userId).single()
-      .then(({ data }) => {
-        if (data?.department) setDepartment(data.department)
-      })
-  }, [userId])
-
-  function toggleCard(id: string) {
-    setSelectedCards(prev =>
-      prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]
-    )
-  }
-
   async function handleFinish() {
     if (!userId) return
-    if (mode === 'custom' && selectedCards.length === 0) {
-      toast.error('Pick at least one card for your path!')
-      return
-    }
     setFinishing(true)
 
     const updatePayload: Record<string, unknown> = {
       onboarding_complete: true,
-      roadmap_mode: mode,
-    }
-
-    if (mode === 'custom') {
-      updatePayload.chosen_roadmap_path = selectedCards
+      roadmap_mode: mode === 'custom' ? 'fixed' : mode,
     }
 
     const { error } = await supabase
@@ -423,7 +293,7 @@ export default function Screen4Roadmap() {
                 : 'text-slate-400 hover:text-white'
             }`}
           >
-            ✨ Build Your Own
+            📄 Full Guide
           </button>
         </div>
 
@@ -471,17 +341,28 @@ export default function Screen4Roadmap() {
               className="mb-8"
             >
               <GlassCard>
-                <h3 className="text-white font-bold mb-1">
-                  {department ? `Cards for ${department} 🎯` : 'Your custom path'}
-                </h3>
+                <h3 className="text-white font-bold mb-1">📄 AI Champs — Full Programme Guide</h3>
                 <p className="text-slate-400 text-xs mb-5">
-                  These are curated for your team. Pick the ones you actually want to work on — your choices get saved to your profile.
+                  Everything you need to know about the 4-week programme. Read through, then pick your path above.
                 </p>
-                <CardGrid
-                  department={department}
-                  selected={selectedCards}
-                  onToggle={toggleCard}
-                />
+                <div className="space-y-5">
+                  {JUNE_WEEKS.map(w => (
+                    <div key={w.week} className="border-l-2 border-purple-500/30 pl-4">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-base">{w.icon}</span>
+                        <p className="text-white text-sm font-bold">Week {w.week} — {w.title}</p>
+                      </div>
+                      <p className="text-slate-400 text-xs leading-relaxed">{w.description}</p>
+                    </div>
+                  ))}
+                  <div className="border-l-2 border-dashed border-slate-700 pl-4">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-base">📊</span>
+                      <p className="text-slate-500 text-sm font-bold">Admin Dashboard <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-700/50 text-slate-500 border border-slate-700/60 uppercase tracking-wide ml-1">Coming Soon</span></p>
+                    </div>
+                    <p className="text-slate-600 text-xs leading-relaxed">Automated progress tracking and reporting — so admins can monitor learner progress without manual effort.</p>
+                  </div>
+                </div>
               </GlassCard>
             </motion.div>
           )}
@@ -489,12 +370,10 @@ export default function Screen4Roadmap() {
 
         <button
           onClick={handleFinish}
-          disabled={finishing || (mode === 'custom' && selectedCards.length === 0)}
+          disabled={finishing}
           className="w-full py-3.5 rounded-xl font-bold text-white bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          {finishing ? 'Almost there...' : mode === 'custom' && selectedCards.length === 0
-            ? 'Pick at least one card to continue'
-            : 'I\'m in — Enter Dashboard →'}
+          {finishing ? 'Almost there...' : 'I\'m in — Enter Dashboard →'}
         </button>
       </div>
     </motion.div>

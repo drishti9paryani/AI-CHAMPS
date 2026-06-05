@@ -4,12 +4,14 @@ import { useState } from 'react'
 
 const NAV_ITEMS = [
   { id: 'profile', label: 'Profile', icon: '👤', mobileLabel: 'Profile' },
-  { id: 'tarot', label: 'My Card', icon: '✨', mobileLabel: 'Card' },
+  { id: 'tarot', label: 'Guide', icon: '✨', mobileLabel: 'Guide' },
   { id: 'submissions', label: 'Submissions', icon: '📝', mobileLabel: 'Forms' },
   { id: 'roadmap', label: 'Roadmap', icon: '🗺️', mobileLabel: 'Roadmap' },
   { id: 'announcements', label: 'News', icon: '📢', mobileLabel: 'News' },
   { id: 'resources', label: 'Resources', icon: '📚', mobileLabel: 'Tools' },
 ]
+
+const BOOK_SLOT_URL = 'https://calendly.com/ai-champs'
 
 interface DashboardLayoutProps {
   userName: string
@@ -90,6 +92,15 @@ export default function DashboardLayout({ userName, isAdmin, children }: Dashboa
               <span className="text-[10px] font-medium truncate">{item.mobileLabel}</span>
             </button>
           ))}
+          <a
+            href={BOOK_SLOT_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-lg min-w-0 flex-1 text-purple-400"
+          >
+            <span className="text-lg">📅</span>
+            <span className="text-[10px] font-medium truncate">Book</span>
+          </a>
         </div>
       </nav>
     </div>
