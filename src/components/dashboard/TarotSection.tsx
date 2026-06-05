@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import TarotFlipCard from '@/components/shared/TarotFlipCard'
 import GlassCard from '@/components/ui/GlassCard'
 import EmptyState from '@/components/ui/EmptyState'
@@ -14,14 +14,15 @@ interface TarotSectionProps {
 
 export default function TarotSection({ card, cardType }: TarotSectionProps) {
   const [flipped, setFlipped] = useState(false)
+  const [open, setOpen] = useState(false)
   const cardRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (card) {
+    if (card && open) {
       const timer = setTimeout(() => setFlipped(true), 400)
       return () => clearTimeout(timer)
     }
-  }, [card])
+  }, [card, open])
 
   async function downloadCard() {
     if (!cardRef.current || !card) return
@@ -67,23 +68,43 @@ export default function TarotSection({ card, cardType }: TarotSectionProps) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.1 }}
     >
-      <GlassCard>
-        <div className="flex flex-col md:flex-row md:items-start gap-6">
-          <div className="w-48 flex-shrink-0 mx-auto md:mx-0">
-            <TarotFlipCard card={card} flipped={flipped} cardRef={cardRef} />
+      <GlassCard className="p-0 overflow-hidden">
+        <button
+          onClick={() => setOpen(o => !o)}
+          className="w-full flex items-center justify-between px-6 py-4 hover:bg-white/5 transition"
+        >
+          <div className="text-left">
+            <p className="text-purple-400 text-xs uppercase tracking-widest">Your Guide</p>
+            <h3 className="text-lg font-bold text-white">{cardType || card.title}</h3>
           </div>
-          <div className="flex-1">
-            <p className="text-purple-400 text-xs uppercase tracking-widest mb-1">Your AI Archetype</p>
-            <h3 className="text-2xl font-bold text-white mb-2">{cardType || card.title}</h3>
-            <p className="text-slate-400 text-sm leading-relaxed mb-4">{card.description}</p>
-            <button
-              onClick={downloadCard}
-              className="px-4 py-2 rounded-xl text-sm font-medium text-white border border-white/20 hover:bg-white/10 transition"
+          <span className={`text-slate-400 text-lg transition-transform duration-200 ${open ? 'rotate-180' : ''}`}>⌄</span>
+        </button>
+        <AnimatePresence initial={false}>
+          {open && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              className="overflow-hidden"
             >
-              Download Card
-            </button>
-          </div>
-        </div>
+              <div className="px-6 pb-6 flex flex-col md:flex-row md:items-start gap-6 border-t border-white/10 pt-4">
+                <div className="w-48 flex-shrink-0 mx-auto md:mx-0">
+                  <TarotFlipCard card={card} flipped={flipped} cardRef={cardRef} />
+                </div>
+                <div className="flex-1">
+                  <p className="text-slate-400 text-sm leading-relaxed mb-4">{card.description}</p>
+                  <button
+                    onClick={downloadCard}
+                    className="px-4 py-2 rounded-xl text-sm font-medium text-white border border-white/20 hover:bg-white/10 transition"
+                  >
+                    Download Card
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </GlassCard>
     </motion.div>
   )

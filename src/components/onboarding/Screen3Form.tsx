@@ -132,27 +132,10 @@ export default function Screen3Form({ editMode = false }: { editMode?: boolean }
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label className="block text-sm font-semibold text-slate-300 mb-1">
-                What AI thing are you actually working on right now?
+                What's making you want to flip a table?
               </label>
               <p className="text-xs text-slate-500 mb-2">
-                Doesn't have to be a 6-month project. Even "I've been using ChatGPT to reply to emails" counts.
-              </p>
-              <textarea
-                required
-                rows={3}
-                value={form.current_project}
-                onChange={e => setForm({ ...form, current_project: e.target.value })}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition resize-none"
-                placeholder="Tell us what you're up to..."
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-slate-300 mb-1">
-                What's the one thing making you want to flip a table?
-              </label>
-              <p className="text-xs text-slate-500 mb-2">
-                Your biggest AI-related challenge or pain point. Be specific — vague answers get vague help.
+                Biggest AI-related challenge or pain point. Be specific — vague answers get vague help.
               </p>
               <textarea
                 required
@@ -166,10 +149,10 @@ export default function Screen3Form({ editMode = false }: { editMode?: boolean }
 
             <div>
               <label className="block text-sm font-semibold text-slate-300 mb-1">
-                If we could hand you one thing tomorrow, what would it be?
+                If we could hand you one thing tomorrow — what?
               </label>
               <p className="text-xs text-slate-500 mb-2">
-                A workshop? A tool subscription? Someone to just sit with you for an hour? Say it.
+                Workshop, tool, mentorship, a vibe session. Say it.
               </p>
               <textarea
                 required
@@ -178,6 +161,23 @@ export default function Screen3Form({ editMode = false }: { editMode?: boolean }
                 onChange={e => setForm({ ...form, support_needed: e.target.value })}
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition resize-none"
                 placeholder="Workshops, tools, mentorship, someone to just vibe with..."
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-slate-300 mb-1">
+                What AI thing are you working on?
+              </label>
+              <p className="text-xs text-slate-500 mb-2">
+                Doesn't have to be big. Even "I'm using ChatGPT for emails" counts.
+              </p>
+              <textarea
+                required
+                rows={3}
+                value={form.current_project}
+                onChange={e => setForm({ ...form, current_project: e.target.value })}
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition resize-none"
+                placeholder="Tell us what you're up to..."
               />
             </div>
 

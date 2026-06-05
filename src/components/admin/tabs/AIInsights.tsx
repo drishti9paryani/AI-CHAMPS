@@ -22,8 +22,8 @@ export default function AIInsights() {
     setError('')
 
     const { data: subs } = await supabase
-      .from('submissions')
-      .select('current_project, challenge, support_needed, users(name, department)')
+      .from('champ_forms')
+      .select('current_project, biggest_challenge, support_needed, users(name, department)')
 
     if (!subs || subs.length === 0) {
       const msg = 'No submissions found.'
@@ -39,7 +39,7 @@ export default function AIInsights() {
         name: u?.name || 'Unknown',
         department: u?.department || 'Unknown',
         current_project: s.current_project,
-        challenge: s.challenge,
+        challenge: s.biggest_challenge,
         support_needed: s.support_needed,
       }
     })
@@ -65,6 +65,10 @@ export default function AIInsights() {
 
   return (
     <div className="space-y-6">
+      <div>
+        <h2 className="text-2xl font-bold gradient-text mb-1">AI Insights Hub</h2>
+        <p className="text-slate-400 text-sm">Claude-powered analysis of all AI Champs submissions — executive summaries, blockers, and recommended actions.</p>
+      </div>
       <div className="flex items-center gap-4 flex-wrap">
         <button
           onClick={generate}

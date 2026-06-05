@@ -4,12 +4,14 @@ import { useState } from 'react'
 
 const NAV_ITEMS = [
   { id: 'profile', label: 'Profile', icon: '👤', mobileLabel: 'Profile' },
-  { id: 'tarot', label: 'My Card', icon: '✨', mobileLabel: 'Card' },
+  { id: 'tarot', label: 'Guide', icon: '✨', mobileLabel: 'Guide' },
   { id: 'submissions', label: 'Submissions', icon: '📝', mobileLabel: 'Forms' },
   { id: 'roadmap', label: 'Roadmap', icon: '🗺️', mobileLabel: 'Roadmap' },
   { id: 'announcements', label: 'News', icon: '📢', mobileLabel: 'News' },
   { id: 'resources', label: 'Resources', icon: '📚', mobileLabel: 'Tools' },
 ]
+
+const BOOK_SLOT_URL = 'https://calendly.com/ai-champs'
 
 interface DashboardLayoutProps {
   userName: string
@@ -54,7 +56,15 @@ export default function DashboardLayout({ userName, children }: DashboardLayoutP
             </button>
           ))}
         </nav>
-        <div className="p-4 border-t border-white/10">
+        <div className="p-4 border-t border-white/10 space-y-3">
+          <a
+            href={BOOK_SLOT_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 transition"
+          >
+            📅 Book a Slot
+          </a>
           <p className="text-slate-600 text-xs text-center">White Rivers Media</p>
         </div>
       </aside>
@@ -80,6 +90,15 @@ export default function DashboardLayout({ userName, children }: DashboardLayoutP
               <span className="text-[10px] font-medium truncate">{item.mobileLabel}</span>
             </button>
           ))}
+          <a
+            href={BOOK_SLOT_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-lg min-w-0 flex-1 text-purple-400"
+          >
+            <span className="text-lg">📅</span>
+            <span className="text-[10px] font-medium truncate">Book</span>
+          </a>
         </div>
       </nav>
     </div>

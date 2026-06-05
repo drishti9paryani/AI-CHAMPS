@@ -77,13 +77,19 @@ export default function UserDashboard({ userId }: { userId: string }) {
 
   return (
     <DashboardLayout userName={user.name}>
-      <ProfileCard
-        name={user.name}
-        department={user.department}
-        email={user.email}
-        aiScore={user.ai_score}
-      />
-      <TarotSection card={user.tarot_card_data} cardType={user.tarot_card_type} />
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
+        <div className="lg:col-span-3">
+          <ProfileCard
+            name={user.name}
+            department={user.department}
+            email={user.email}
+            aiScore={user.ai_score}
+          />
+        </div>
+        <div className="lg:col-span-2">
+          <TarotSection card={user.tarot_card_data} cardType={user.tarot_card_type} />
+        </div>
+      </div>
       <MySubmissions submission={submission} userId={userId} />
       <RoadmapProgress
         currentWeek={user.current_week ?? 1}

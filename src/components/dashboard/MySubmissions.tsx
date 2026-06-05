@@ -20,6 +20,7 @@ interface MySubmissionsProps {
 }
 
 export default function MySubmissions({ submission: initialSubmission, userId }: MySubmissionsProps) {
+  const [open, setOpen] = useState(false)
   const [editing, setEditing] = useState(false)
   const [submission, setSubmission] = useState<Submission | null>(initialSubmission)
   const [form, setForm] = useState({
@@ -100,21 +101,38 @@ export default function MySubmissions({ submission: initialSubmission, userId }:
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.15 }}
     >
-      <GlassCard>
-        <div className="flex items-start justify-between mb-1">
-          <div>
+      <GlassCard className="p-0 overflow-hidden">
+        <button
+          onClick={() => setOpen(o => !o)}
+          className="w-full flex items-center justify-between px-6 py-4 hover:bg-white/5 transition"
+        >
+          <div className="text-left">
             <h3 className="text-lg font-bold text-white">My Answers</h3>
             <p className="text-slate-400 text-sm">The tea you spilled during onboarding.</p>
           </div>
+          <span className={`text-slate-400 text-lg transition-transform duration-200 ${open ? 'rotate-180' : ''}`}>⌄</span>
+        </button>
+
+        <AnimatePresence initial={false}>
+        {open && (
+        <motion.div
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: 'auto', opacity: 1 }}
+          exit={{ height: 0, opacity: 0 }}
+          transition={{ duration: 0.25 }}
+          className="overflow-hidden"
+        >
+        <div className="px-6 pb-6 border-t border-white/10 pt-4">
           {!editing && (
-            <button
-              onClick={startEdit}
-              className="flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-300 hover:bg-purple-500/30 transition"
-            >
-              {submission ? '✏️ Edit' : '+ Add'}
-            </button>
+            <div className="flex justify-end mb-3">
+              <button
+                onClick={startEdit}
+                className="flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-300 hover:bg-purple-500/30 transition"
+              >
+                {submission ? '✏️ Edit' : '+ Add'}
+              </button>
+            </div>
           )}
-        </div>
 
         <AnimatePresence mode="wait">
           {editing ? (
@@ -127,9 +145,9 @@ export default function MySubmissions({ submission: initialSubmission, userId }:
               className="space-y-4 mt-4"
             >
               {[
+                { key: 'support_needed', label: 'If we could hand you one thing tomorrow — what?', hint: 'A workshop, tool, mentorship session, or resource — tell us exactly what would move the needle for you.' },
                 { key: 'current_project', label: 'What AI thing are you working on?', hint: "Doesn't have to be big. Even \"I'm using ChatGPT for emails\" counts." },
                 { key: 'challenge', label: "What's making you want to flip a table?", hint: 'Biggest AI-related challenge or pain point.' },
-                { key: 'support_needed', label: 'If we could hand you one thing tomorrow — what?', hint: 'Workshop, tool, mentorship, a vibe session. Say it.' },
               ].map(({ key, label, hint }) => (
                 <div key={key}>
                   <label className="block text-sm font-semibold text-slate-300 mb-0.5">{label}</label>
@@ -187,25 +205,29 @@ export default function MySubmissions({ submission: initialSubmission, userId }:
               className="space-y-4 mt-4"
             >
               <div>
-                <p className="text-purple-400 text-xs uppercase tracking-wider mb-2">What you're working on</p>
+                <p className="text-purple-400 text-xs uppercase tracking-wider mb-2">Support Requested</p>
+                <p className="text-white bg-white/5 rounded-xl p-4 text-sm leading-relaxed border border-white/5">
+                  {submission.support_needed}
+                </p>
+              </div>
+              <div>
+                <p className="text-purple-400 text-xs uppercase tracking-wider mb-2">Current AI Initiative</p>
                 <p className="text-white bg-white/5 rounded-xl p-4 text-sm leading-relaxed border border-white/5">
                   {submission.current_project}
                 </p>
               </div>
               <div>
-                <p className="text-purple-400 text-xs uppercase tracking-wider mb-2">The table-flip moment</p>
+                <p className="text-purple-400 text-xs uppercase tracking-wider mb-2">Primary Blocker</p>
                 <p className="text-white bg-white/5 rounded-xl p-4 text-sm leading-relaxed border border-white/5">
                   {submission.biggest_challenge}
                 </p>
               </div>
-              <div>
-                <p className="text-purple-400 text-xs uppercase tracking-wider mb-2">What you need</p>
-                <p className="text-white bg-white/5 rounded-xl p-4 text-sm leading-relaxed border border-white/5">
-                  {submission.support_needed}
-                </p>
-              </div>
             </motion.div>
           )}
+        </AnimatePresence>
+        </div>
+        </motion.div>
+        )}
         </AnimatePresence>
       </GlassCard>
     </motion.div>

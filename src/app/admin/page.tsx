@@ -11,25 +11,55 @@ import AIInsights from '@/components/admin/tabs/AIInsights'
 import RiskFlags from '@/components/admin/tabs/RiskFlags'
 import Export from '@/components/admin/tabs/Export'
 import ManageRoadmap from '@/components/admin/tabs/ManageRoadmap'
+import UserDashboard from '@/components/dashboard/UserDashboard'
+import ChampionView from '@/components/admin/tabs/ChampionView'
+import TeamView from '@/components/admin/tabs/TeamView'
+import Projects from '@/components/admin/tabs/Projects'
+import RiskCentre from '@/components/admin/tabs/RiskCentre'
+
+function ViewToggle({ viewMode, onChange }: { viewMode: 'admin' | 'user'; onChange: (v: 'admin' | 'user') => void }) {
+  return (
+    <div className="flex items-center gap-1 bg-white/5 border border-white/10 rounded-xl p-1">
+      {(['admin', 'user'] as const).map(v => (
+        <button
+          key={v}
+          onClick={() => onChange(v)}
+          className={`px-4 py-1.5 rounded-lg text-sm font-medium transition ${
+            viewMode === v
+              ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow'
+              : 'text-slate-400 hover:text-white'
+          }`}
+        >
+          {v === 'admin' ? '🛡 Admin View' : '👤 User View'}
+        </button>
+      ))}
+    </div>
+  )
+}
 
 const TABS = [
-  { id: 'overview', label: 'Overview', icon: '📊' },
-  { id: 'users', label: 'All Users', icon: '👥' },
-  { id: 'insights', label: 'AI Insights', icon: '🤖' },
-  { id: 'risk', label: 'Risk Flags', icon: '🚨' },
-  { id: 'export', label: 'Export', icon: '📤' },
-  { id: 'roadmap', label: 'Roadmap Editor', icon: '🗺️' },
+  { id: 'overview',    label: 'Overview',       icon: '📊' },
+  { id: 'users',       label: 'All Users',       icon: '👥' },
+  { id: 'champion',    label: 'Champion View',   icon: '🏅' },
+  { id: 'teams',       label: 'Team View',       icon: '🏢' },
+  { id: 'projects',    label: 'Projects',        icon: '🚀' },
+  { id: 'riskcentre',  label: 'Risk Centre',     icon: '🆘' },
+  { id: 'insights',    label: 'AI Insights',     icon: '🤖' },
+  { id: 'risk',        label: 'Risk Flags',      icon: '🚨' },
+  { id: 'export',      label: 'Export',          icon: '📤' },
+  { id: 'roadmap',     label: 'Roadmap Editor',  icon: '🗺️' },
 ]
 
 export default function AdminPage() {
   const [ready, setReady] = useState(false)
   const [activeTab, setActiveTab] = useState('overview')
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [viewMode, setViewMode] = useState<'admin' | 'user'>('admin')
+  const [userId, setUserId] = useState<string | null>(null)
 
   useEffect(() => {
-    // Middleware already enforces admin role — this just waits for auth to settle
     supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) setReady(true)
+      if (user) { setReady(true); setUserId(user.id) }
     })
   }, [])
 
@@ -41,14 +71,29 @@ export default function AdminPage() {
     </div>
   )
 
+  if (viewMode === 'user' && userId) {
+    return (
+      <div style={{ background: 'radial-gradient(ellipse at top, #1a0533 0%, #0d0d1a 60%)' }}>
+        <div className="flex justify-center pt-4 pb-2">
+          <ViewToggle viewMode={viewMode} onChange={setViewMode} />
+        </div>
+        <UserDashboard userId={userId} />
+      </div>
+    )
+  }
+
   const TabContent = () => {
     switch (activeTab) {
-      case 'overview': return <Overview />
-      case 'users': return <AllUsers />
-      case 'insights': return <AIInsights />
-      case 'risk': return <RiskFlags />
-      case 'export': return <Export />
-      case 'roadmap': return <ManageRoadmap />
+      case 'overview':   return <Overview />
+      case 'users':      return <AllUsers />
+      case 'champion':   return <ChampionView />
+      case 'teams':      return <TeamView />
+      case 'projects':   return <Projects />
+      case 'riskcentre': return <RiskCentre />
+      case 'insights':   return <AIInsights />
+      case 'risk':       return <RiskFlags />
+      case 'export':     return <Export />
+      case 'roadmap':    return <ManageRoadmap />
       default: return null
     }
   }
@@ -79,6 +124,7 @@ export default function AdminPage() {
                 <p className="text-slate-400 text-sm">White Rivers Media · AI Champs Program</p>
               </div>
             </div>
+            <ViewToggle viewMode={viewMode} onChange={setViewMode} />
           </div>
 
           <AnimatePresence mode="wait">
