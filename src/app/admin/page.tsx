@@ -7,13 +7,11 @@ import AdminSidebar from '@/components/admin/AdminSidebar'
 import { AdminOverviewSkeleton } from '@/components/ui/skeletons/AdminSkeletons'
 import Overview from '@/components/admin/tabs/Overview'
 import AllUsers from '@/components/admin/tabs/AllUsers'
-import AIInsights from '@/components/admin/tabs/AIInsights'
 import RiskFlags from '@/components/admin/tabs/RiskFlags'
 import Export from '@/components/admin/tabs/Export'
 import ManageRoadmap from '@/components/admin/tabs/ManageRoadmap'
 import TeamView from '@/components/admin/tabs/TeamView'
 import Projects from '@/components/admin/tabs/Projects'
-import BulkTarot from '@/components/admin/tabs/BulkTarot'
 import UserDashboard from '@/components/dashboard/UserDashboard'
 import ThemeToggle from '@/components/ui/ThemeToggle'
 
@@ -43,8 +41,6 @@ const TABS = [
   { id: 'teams', label: 'Team View', icon: '🏢' },
   { id: 'risk', label: 'Risk Centre', icon: '🚨' },
   { id: 'projects', label: 'Projects', icon: '🚀' },
-  { id: 'insights', label: 'AI Insights', icon: '🤖' },
-  { id: 'tarot', label: 'Bulk Tarot', icon: '✨' },
   { id: 'export', label: 'Export', icon: '📤' },
   { id: 'roadmap', label: 'Roadmap Editor', icon: '🗺️' },
 ]
@@ -88,8 +84,6 @@ export default function AdminPage() {
       case 'teams': return <TeamView />
       case 'risk': return <RiskFlags />
       case 'projects': return <Projects />
-      case 'insights': return <AIInsights />
-      case 'tarot': return <BulkTarot />
       case 'export': return <Export />
       case 'roadmap': return <ManageRoadmap />
       default: return null

@@ -10,16 +10,26 @@ import { useOnboardingUser } from '@/lib/useOnboardingUser'
 import { toast } from '@/lib/toast'
 import { OnboardingPageSkeleton } from '@/components/ui/skeletons/AdminSkeletons'
 
+type Urgency = 'critical' | 'high' | 'medium' | 'low'
+
+const URGENCY_OPTIONS: { value: Urgency; label: string; emoji: string; desc: string }[] = [
+  { value: 'critical', label: 'Critical', emoji: '🔴', desc: 'Blocking my work right now' },
+  { value: 'high',     label: 'High',     emoji: '🟠', desc: 'Needs attention this week'  },
+  { value: 'medium',   label: 'Medium',   emoji: '🟡', desc: 'Important but can wait'     },
+  { value: 'low',      label: 'Low',      emoji: '🟢', desc: 'Nice to have'               },
+]
+
 interface FormState {
   current_project: string
   challenge: string
   support_needed: string
+  urgency: Urgency
 }
 
 export default function Screen3Form({ editMode = false }: { editMode?: boolean }) {
   const router = useRouter()
   const { userId, loading: authLoading } = useOnboardingUser()
-  const [form, setForm] = useState<FormState>({ current_project: '', challenge: '', support_needed: '' })
+  const [form, setForm] = useState<FormState>({ current_project: '', challenge: '', support_needed: '', urgency: 'medium' })
   const [loading, setLoading] = useState(false)
   const [fetching, setFetching] = useState(true)
   const [error, setError] = useState('')
@@ -34,7 +44,7 @@ export default function Screen3Form({ editMode = false }: { editMode?: boolean }
     if (!userId) return
     supabase
       .from('champ_forms')
-      .select('id, current_project, biggest_challenge, support_needed')
+      .select('id, current_project, biggest_challenge, support_needed, urgency')
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
       .limit(1)
@@ -46,6 +56,7 @@ export default function Screen3Form({ editMode = false }: { editMode?: boolean }
             current_project: data.current_project ?? '',
             challenge: data.biggest_challenge ?? '',
             support_needed: data.support_needed ?? '',
+            urgency: (data.urgency as Urgency) ?? 'medium',
           })
         }
         setFetching(false)
@@ -74,6 +85,7 @@ export default function Screen3Form({ editMode = false }: { editMode?: boolean }
           current_project: form.current_project,
           biggest_challenge: form.challenge,
           support_needed: form.support_needed,
+          urgency: form.urgency,
         })
         .eq('id', existingId)
       submissionErr = error
@@ -83,6 +95,7 @@ export default function Screen3Form({ editMode = false }: { editMode?: boolean }
         current_project: form.current_project,
         biggest_challenge: form.challenge,
         support_needed: form.support_needed,
+        urgency: form.urgency,
       })
       submissionErr = error
     }
@@ -181,6 +194,36 @@ export default function Screen3Form({ editMode = false }: { editMode?: boolean }
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 transition resize-none"
                 placeholder="What's been hard or frustrating?"
               />
+            </div>
+
+            {/* Urgency picker */}
+            <div>
+              <label className="block text-sm font-semibold text-slate-300 mb-1">
+                How urgent is the support you need?
+              </label>
+              <p className="text-xs text-slate-500 mb-3">
+                This helps us prioritise who to help first.
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                {URGENCY_OPTIONS.map(opt => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setForm({ ...form, urgency: opt.value })}
+                    className={`flex items-start gap-2 p-3 rounded-xl border text-left transition ${
+                      form.urgency === opt.value
+                        ? 'border-purple-500/60 bg-purple-500/10 text-white'
+                        : 'border-white/10 bg-white/5 text-slate-400 hover:border-white/20 hover:text-white'
+                    }`}
+                  >
+                    <span className="text-base mt-0.5">{opt.emoji}</span>
+                    <div>
+                      <div className="text-xs font-semibold">{opt.label}</div>
+                      <div className="text-xs opacity-70">{opt.desc}</div>
+                    </div>
+                  </button>
+                ))}
+              </div>
             </div>
 
             {error && <p className="text-red-400 text-sm">{error}</p>}

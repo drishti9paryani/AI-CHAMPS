@@ -124,3 +124,16 @@ create policy "Admins can manage all risk flags" on public.risk_flags for all us
 create index users_role_idx          on public.users (role);
 create index champ_forms_user_id_idx on public.champ_forms (user_id);
 create index risk_flags_user_id_idx  on public.risk_flags (user_id);
+
+-- ------------------------------------------------------------
+-- champ_forms — urgency & problem status columns (migration)
+-- Run this block separately if the table already exists
+-- ------------------------------------------------------------
+alter table public.champ_forms
+  add column if not exists urgency          text check (urgency in ('critical','high','medium','low')),
+  add column if not exists problem_status   text not null default 'open' check (problem_status in ('open','in_progress','resolved')),
+  add column if not exists status_updated_at timestamptz;
+
+-- Allow admins to stamp status_updated_at when they change a flag
+create index if not exists champ_forms_urgency_idx        on public.champ_forms (urgency);
+create index if not exists champ_forms_problem_status_idx on public.champ_forms (problem_status);
