@@ -12,8 +12,9 @@ import Export from '@/components/admin/tabs/Export'
 import ManageRoadmap from '@/components/admin/tabs/ManageRoadmap'
 import TeamView from '@/components/admin/tabs/TeamView'
 import Projects from '@/components/admin/tabs/Projects'
+import WinBoard from '@/components/admin/tabs/WinBoard'
+import Challenges from '@/components/admin/tabs/Challenges'
 import UserDashboard from '@/components/dashboard/UserDashboard'
-import ThemeToggle from '@/components/ui/ThemeToggle'
 
 function ViewToggle({ viewMode, onChange }: { viewMode: 'admin' | 'user'; onChange: (v: 'admin' | 'user') => void }) {
   return (
@@ -36,13 +37,15 @@ function ViewToggle({ viewMode, onChange }: { viewMode: 'admin' | 'user'; onChan
 }
 
 const TABS = [
-  { id: 'overview', label: 'Overview', icon: '📊' },
-  { id: 'champions', label: 'Champions', icon: '👥' },
-  { id: 'teams', label: 'Team View', icon: '🏢' },
-  { id: 'risk', label: 'Risk Centre', icon: '🚨' },
-  { id: 'projects', label: 'Projects', icon: '🚀' },
-  { id: 'export', label: 'Export', icon: '📤' },
-  { id: 'roadmap', label: 'Roadmap Editor', icon: '🗺️' },
+  { id: 'overview',    label: 'Overview',        icon: '📊' },
+  { id: 'champions',   label: 'Champions',        icon: '👥' },
+  { id: 'teams',       label: 'Team View',        icon: '🏢' },
+  { id: 'risk',        label: 'Risk Centre',      icon: '🚨' },
+  { id: 'challenges',  label: 'Challenges',       icon: '⚡' },
+  { id: 'winboard',    label: 'Win Board',        icon: '🏆' },
+  { id: 'projects',    label: 'Projects',         icon: '🚀' },
+  { id: 'export',      label: 'Export',           icon: '📤' },
+  { id: 'roadmap',     label: 'Roadmap Editor',   icon: '🗺️' },
 ]
 
 export default function AdminPage() {
@@ -79,14 +82,16 @@ export default function AdminPage() {
 
   const TabContent = () => {
     switch (activeTab) {
-      case 'overview': return <Overview />
-      case 'champions': return <AllUsers />
-      case 'teams': return <TeamView />
-      case 'risk': return <RiskFlags />
-      case 'projects': return <Projects />
-      case 'export': return <Export />
-      case 'roadmap': return <ManageRoadmap />
-      default: return null
+      case 'overview':   return <Overview />
+      case 'champions':  return <AllUsers />
+      case 'teams':      return <TeamView />
+      case 'risk':       return <RiskFlags />
+      case 'challenges': return <Challenges />
+      case 'winboard':   return <WinBoard />
+      case 'projects':   return <Projects />
+      case 'export':     return <Export />
+      case 'roadmap':    return <ManageRoadmap />
+      default:           return null
     }
   }
 
@@ -118,7 +123,6 @@ export default function AdminPage() {
             </div>
             <div className="flex items-center gap-2">
               <ViewToggle viewMode={viewMode} onChange={setViewMode} />
-              <ThemeToggle />
             </div>
           </div>
 

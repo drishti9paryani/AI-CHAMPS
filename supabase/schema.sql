@@ -137,3 +137,102 @@ alter table public.champ_forms
 -- Allow admins to stamp status_updated_at when they change a flag
 create index if not exists champ_forms_urgency_idx        on public.champ_forms (urgency);
 create index if not exists champ_forms_problem_status_idx on public.champ_forms (problem_status);
+
+-- ============================================================
+-- ai_wins  — Win Board social feed
+-- ============================================================
+create table if not exists public.ai_wins (
+  id                  uuid        primary key default gen_random_uuid(),
+  user_id             uuid        not null references public.users(id) on delete cascade,
+  content             text        not null,
+  tool_used           text,
+  time_saved_minutes  integer     not null default 0,
+  created_at          timestamptz not null default now()
+);
+
+alter table public.ai_wins enable row level security;
+
+create policy "Authenticated users can view wins"
+  on public.ai_wins for select using (auth.uid() is not null);
+create policy "Users can post own wins"
+  on public.ai_wins for insert with check (auth.uid() = user_id);
+create policy "Users can delete own wins"
+  on public.ai_wins for delete using (auth.uid() = user_id);
+create policy "Admins can manage all wins"
+  on public.ai_wins for all using (public.is_admin()) with check (public.is_admin());
+
+create index if not exists ai_wins_user_id_idx   on public.ai_wins (user_id);
+create index if not exists ai_wins_created_at_idx on public.ai_wins (created_at desc);
+
+-- ============================================================
+-- win_reactions  — emoji reactions on wins
+-- ============================================================
+create table if not exists public.win_reactions (
+  id         uuid        primary key default gen_random_uuid(),
+  win_id     uuid        not null references public.ai_wins(id) on delete cascade,
+  user_id    uuid        not null references public.users(id) on delete cascade,
+  emoji      text        not null check (emoji in ('🔥','💡','🚀','❤️')),
+  created_at timestamptz not null default now(),
+  unique(win_id, user_id, emoji)
+);
+
+alter table public.win_reactions enable row level security;
+
+create policy "Authenticated users can view reactions"
+  on public.win_reactions for select using (auth.uid() is not null);
+create policy "Users can add own reactions"
+  on public.win_reactions for insert with check (auth.uid() = user_id);
+create policy "Users can remove own reactions"
+  on public.win_reactions for delete using (auth.uid() = user_id);
+
+create index if not exists win_reactions_win_id_idx on public.win_reactions (win_id);
+
+-- ============================================================
+-- weekly_challenges  — admin-set challenges per team per week
+-- ============================================================
+create table if not exists public.weekly_challenges (
+  id          uuid        primary key default gen_random_uuid(),
+  team        text        not null,
+  week_label  text        not null,  -- e.g. "2026-W24"
+  title       text        not null,
+  description text        not null,
+  tool_hint   text,
+  created_at  timestamptz not null default now(),
+  unique(team, week_label)
+);
+
+alter table public.weekly_challenges enable row level security;
+
+create policy "Authenticated users can view challenges"
+  on public.weekly_challenges for select using (auth.uid() is not null);
+create policy "Admins can manage challenges"
+  on public.weekly_challenges for all using (public.is_admin()) with check (public.is_admin());
+
+create index if not exists weekly_challenges_team_week_idx on public.weekly_challenges (team, week_label);
+
+-- ============================================================
+-- challenge_completions  — who completed which challenge
+-- ============================================================
+create table if not exists public.challenge_completions (
+  id                  uuid        primary key default gen_random_uuid(),
+  challenge_id        uuid        not null references public.weekly_challenges(id) on delete cascade,
+  user_id             uuid        not null references public.users(id) on delete cascade,
+  proof_text          text,
+  time_saved_minutes  integer     not null default 0,
+  completed_at        timestamptz not null default now(),
+  unique(challenge_id, user_id)
+);
+
+alter table public.challenge_completions enable row level security;
+
+create policy "Users can view own completions"
+  on public.challenge_completions for select using (auth.uid() = user_id);
+create policy "Admins can view all completions"
+  on public.challenge_completions for select using (public.is_admin());
+create policy "Users can submit completions"
+  on public.challenge_completions for insert with check (auth.uid() = user_id);
+create policy "Admins can manage all completions"
+  on public.challenge_completions for all using (public.is_admin()) with check (public.is_admin());
+
+create index if not exists challenge_completions_user_idx      on public.challenge_completions (user_id);
+create index if not exists challenge_completions_challenge_idx on public.challenge_completions (challenge_id);

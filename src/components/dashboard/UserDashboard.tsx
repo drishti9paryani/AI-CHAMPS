@@ -12,6 +12,10 @@ import RoadmapProgress from '@/components/dashboard/RoadmapProgress'
 import LearningResources from '@/components/dashboard/LearningResources'
 import BookingSection from '@/components/dashboard/BookingSection'
 import DashboardSkeleton from '@/components/ui/skeletons/DashboardSkeleton'
+import StreakCard from '@/components/dashboard/StreakCard'
+import WeeklyChallenge from '@/components/dashboard/WeeklyChallenge'
+import WinFeed from '@/components/dashboard/WinFeed'
+import ImpactCounter from '@/components/dashboard/ImpactCounter'
 
 interface UserData {
   name: string
@@ -87,12 +91,26 @@ export default function UserDashboard({ userId }: { userId: string }) {
         email={user.email}
         aiScore={user.ai_score}
       />
+
+      {/* 3D action row: streak + impact */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <StreakCard userId={userId} />
+        <ImpactCounter userId={userId} team={user.department} />
+      </div>
+
+      {/* Team's weekly challenge */}
+      <WeeklyChallenge userId={userId} team={user.department} />
+
       <MySubmissions submission={submission} userId={userId} />
       <RoadmapProgress
         currentWeek={user.current_week ?? 1}
         roadmapMode={user.roadmap_mode}
         chosenPath={user.chosen_roadmap_path}
       />
+
+      {/* AI Win Feed — social proof + habit loop */}
+      <WinFeed userId={userId} />
+
       <BookingSection />
       <LearningResources />
     </DashboardLayout>

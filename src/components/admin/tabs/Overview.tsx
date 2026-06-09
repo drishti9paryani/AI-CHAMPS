@@ -1,9 +1,11 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { motion } from 'framer-motion'
 import { supabase } from '@/lib/supabase'
 import GlassCard from '@/components/ui/GlassCard'
 import { AdminOverviewSkeleton } from '@/components/ui/skeletons/AdminSkeletons'
+// weekLabel imported for future heatmap drill-downs
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell,
   LineChart, Line, CartesianGrid,
@@ -33,8 +35,18 @@ interface Stats {
   dropOffWeek: number
   /** Last active date per participant — displayed in AllUsers; also used for avg below */
   lastActiveMap: Record<string, string>
-  // TODO: mostUsedTools — requires a new `tool_usage` table or form field to track which tools participants use
-  // TODO: avgSessionTime — requires client-side session instrumentation (e.g. start/end timestamp events)
+  /** Team readiness heatmap: one row per department */
+  heatmapRows: HeatmapRow[]
+}
+
+interface HeatmapRow {
+  team: string
+  count: number
+  aiScore: number      // 0-100
+  onboarding: number   // 0-100
+  activityRate: number // 0-100, % active last 7 days
+  riskFree: number     // 0-100, % NOT red/amber
+  challenges: number   // 0-100, % with any challenge completion
 }
 
 function getTooltipStyle() {
@@ -56,7 +68,7 @@ export default function Overview() {
 
   useEffect(() => {
     async function load() {
-      const [{ data: users }, { data: forms }] = await Promise.all([
+      const [{ data: users }, { data: forms }, { data: completions }] = await Promise.all([
         supabase
           .from('users')
           .select('id, name, department, ai_score, risk_flag, tarot_card_type, current_week, onboarding_complete, created_at'),
@@ -64,6 +76,9 @@ export default function Overview() {
           .from('champ_forms')
           .select('user_id, created_at')
           .order('created_at', { ascending: false }),
+        supabase
+          .from('challenge_completions')
+          .select('user_id'),
       ])
       if (!users) return
 
@@ -152,6 +167,28 @@ export default function Overview() {
         .sort((a, b) => b.completion - a.completion || b.score - a.score)
         .slice(0, 5)
 
+      // ── Heatmap: one row per department ─────────────────────────────────────
+      const champSet = new Set((completions ?? []).map(c => c.user_id))
+      const heatmapRows: HeatmapRow[] = Object.entries(deptMap).map(([team, d]) => {
+        const teamUsers = users.filter(u => (u.department || 'Unknown') === team)
+        const count = teamUsers.length
+        const withScore = teamUsers.filter(u => u.ai_score != null)
+        const avgAI = withScore.length ? withScore.reduce((s, u) => s + u.ai_score!, 0) / withScore.length : 0
+        const onboarded = teamUsers.filter(u => u.onboarding_complete).length
+        const active = teamUsers.filter(u => activeSet.has(u.id)).length
+        const atRiskUsers = teamUsers.filter(u => u.risk_flag === 'red' || u.risk_flag === 'amber').length
+        const withChallenge = teamUsers.filter(u => champSet.has(u.id)).length
+        return {
+          team,
+          count,
+          aiScore: Math.round((avgAI / 5) * 100),
+          onboarding: count ? Math.round((onboarded / count) * 100) : 0,
+          activityRate: count ? Math.round((active / count) * 100) : 0,
+          riskFree: count ? Math.round(((count - atRiskUsers) / count) * 100) : 100,
+          challenges: count ? Math.round((withChallenge / count) * 100) : 0,
+        }
+      }).sort((a, b) => b.aiScore - a.aiScore)
+
       setStats({
         totalChamps: users.length,
         activeThisWeek: activeSet.size,
@@ -170,6 +207,7 @@ export default function Overview() {
         topPerformers,
         dropOffWeek: Number(dropOffWeek),
         lastActiveMap,
+        heatmapRows,
       })
     }
     load()
@@ -265,26 +303,74 @@ export default function Overview() {
         )}
       </GlassCard>
 
-      {/* ── TODO Placeholders ──────────────────────────────────────────────── */}
-      <div className="grid md:grid-cols-2 gap-6">
-        <GlassCard className="opacity-60">
-          {/* TODO: mostUsedTools — needs a new `tool_usage` table or a "Which tools are you using?" field in champ_forms */}
-          <h3 className="text-base font-semibold text-slate-400 mb-2">Most Used AI Tools</h3>
-          <p className="text-slate-600 text-xs leading-relaxed">
-            Requires a backend data hook: add a multi-select "tools you're using" field to the check-in form, or a separate <code className="bg-white/5 px-1 rounded">tool_usage</code> table with user_id + tool_name + timestamp.
-          </p>
-          <span className="inline-block mt-3 text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30">TODO: Backend hook needed</span>
-        </GlassCard>
+      {/* ── Team Readiness Heatmap ─────────────────────────────────────────── */}
+      <GlassCard>
+        <h3 className="text-base font-semibold text-white mb-1">Team Readiness Heatmap</h3>
+        <p className="text-slate-500 text-xs mb-4">
+          5 dimensions across every team. <span className="text-green-400">Green ≥70</span> ·{' '}
+          <span className="text-amber-400">Amber 40–70</span> ·{' '}
+          <span className="text-red-400">Red &lt;40</span>
+        </p>
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs min-w-[600px]">
+            <thead>
+              <tr className="border-b border-white/8">
+                <th className="text-left text-slate-500 font-medium py-2 pr-4 w-44">Team</th>
+                {[
+                  { label: '🌟 AI Score',    title: 'Average self-reported AI score' },
+                  { label: '✅ Onboarded',   title: '% with onboarding complete' },
+                  { label: '⚡ Active',      title: '% with a form submission this week' },
+                  { label: '🛡 Risk-Free',   title: '% with no red/amber risk flag' },
+                  { label: '🏆 Challenges',  title: '% who completed at least one challenge' },
+                ].map(h => (
+                  <th key={h.label} title={h.title}
+                    className="text-slate-500 font-medium py-2 px-2 text-center cursor-help">
+                    {h.label}
+                  </th>
+                ))}
+                <th className="text-slate-500 font-medium py-2 pl-4 text-right">Members</th>
+              </tr>
+            </thead>
+            <tbody>
+              {stats.heatmapRows.map((row, i) => (
+                <motion.tr
+                  key={row.team}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.03 }}
+                  className="border-b border-white/5 hover:bg-white/[0.02] transition-colors"
+                >
+                  <td className="py-2.5 pr-4 text-slate-300 font-medium truncate max-w-[11rem]">{row.team}</td>
+                  {[row.aiScore, row.onboarding, row.activityRate, row.riskFree, row.challenges].map((v, ci) => (
+                    <td key={ci} className="py-2.5 px-2 text-center">
+                      <HeatCell value={v} />
+                    </td>
+                  ))}
+                  <td className="py-2.5 pl-4 text-right text-slate-500">{row.count}</td>
+                </motion.tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </GlassCard>
+    </div>
+  )
+}
 
-        <GlassCard className="opacity-60">
-          {/* TODO: avgSessionTime — requires client-side session start/end instrumentation */}
-          <h3 className="text-base font-semibold text-slate-400 mb-2">Average Session Time</h3>
-          <p className="text-slate-600 text-xs leading-relaxed">
-            Requires session instrumentation: log a <code className="bg-white/5 px-1 rounded">session_start</code> event on mount and <code className="bg-white/5 px-1 rounded">session_end</code> on unmount/blur, then store duration in a <code className="bg-white/5 px-1 rounded">sessions</code> table.
-          </p>
-          <span className="inline-block mt-3 text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30">TODO: Frontend instrumentation needed</span>
-        </GlassCard>
-      </div>
+// ── Heatmap cell ────────────────────────────────────────────────────────────────
+function HeatCell({ value }: { value: number }) {
+  const color =
+    value >= 70 ? { bg: 'rgba(52,211,153,0.15)', text: '#34d399', border: 'rgba(52,211,153,0.3)' }
+    : value >= 40 ? { bg: 'rgba(245,158,11,0.15)', text: '#f59e0b', border: 'rgba(245,158,11,0.3)' }
+    : value > 0   ? { bg: 'rgba(248,113,113,0.15)', text: '#f87171', border: 'rgba(248,113,113,0.3)' }
+    :               { bg: 'rgba(255,255,255,0.04)', text: '#475569', border: 'rgba(255,255,255,0.08)' }
+
+  return (
+    <div
+      className="inline-flex items-center justify-center w-14 h-8 rounded-lg text-xs font-bold"
+      style={{ background: color.bg, color: color.text, border: `1px solid ${color.border}` }}
+    >
+      {value > 0 ? `${value}%` : '—'}
     </div>
   )
 }
