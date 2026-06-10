@@ -262,22 +262,80 @@ export default function RoadmapProgress({ currentWeek, roadmapMode, chosenPath }
         </div>
 
         {isCustom ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {chosenCards.map((card, idx) => (
-              <motion.div
-                key={card.id}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.05 }}
-                className="flex items-start gap-3 p-3 rounded-xl bg-white/5 border border-white/10"
-              >
-                <span className="text-2xl flex-shrink-0">{card.emoji}</span>
-                <div>
-                  <p className="text-white text-sm font-semibold">{card.title}</p>
-                  <p className="text-slate-400 text-xs mt-0.5 leading-relaxed">{card.description}</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {chosenCards.map((card, idx) => {
+              const palette = [
+                { from: '#a78bfa', to: '#7c3aed', glow: 'rgba(167,139,250,0.25)', bg: 'rgba(167,139,250,0.07)' },
+                { from: '#60a5fa', to: '#2563eb', glow: 'rgba(96,165,250,0.25)',  bg: 'rgba(96,165,250,0.07)' },
+                { from: '#34d399', to: '#059669', glow: 'rgba(52,211,153,0.25)',  bg: 'rgba(52,211,153,0.07)' },
+                { from: '#fbbf24', to: '#d97706', glow: 'rgba(251,191,36,0.25)', bg: 'rgba(251,191,36,0.07)' },
+                { from: '#f472b6', to: '#db2777', glow: 'rgba(244,114,182,0.25)',bg: 'rgba(244,114,182,0.07)' },
+                { from: '#38bdf8', to: '#0284c7', glow: 'rgba(56,189,248,0.25)', bg: 'rgba(56,189,248,0.07)' },
+              ]
+              const p = palette[idx % palette.length]
+              return (
+                <div key={card.id} style={{ perspective: '900px' }}>
+                  <motion.div
+                    initial={{ opacity: 0, y: 16, rotateX: 10 }}
+                    animate={{ opacity: 1, y: 0, rotateX: 0 }}
+                    transition={{ delay: idx * 0.07, type: 'spring', stiffness: 260, damping: 22 }}
+                    whileHover={{ rotateX: -6, rotateY: 8, scale: 1.04, z: 20 }}
+                    style={{ transformStyle: 'preserve-3d' }}
+                    className="relative rounded-2xl overflow-hidden cursor-default"
+                  >
+                    {/* Gradient border */}
+                    <div
+                      className="absolute inset-0 rounded-2xl"
+                      style={{
+                        padding: '1px',
+                        background: `linear-gradient(135deg, ${p.from}, ${p.to})`,
+                        opacity: 0.55,
+                      }}
+                    >
+                      <div className="absolute inset-0 rounded-2xl bg-[#0d0d1a]" />
+                    </div>
+
+                    {/* Hover glow */}
+                    <motion.div
+                      className="absolute inset-0 rounded-2xl pointer-events-none"
+                      initial={{ opacity: 0 }}
+                      whileHover={{ opacity: 1 }}
+                      style={{ boxShadow: `0 0 40px ${p.glow}, 0 0 80px ${p.glow}` }}
+                    />
+
+                    {/* Content */}
+                    <div
+                      className="relative z-10 flex items-start gap-4 p-4 rounded-2xl"
+                      style={{ background: p.bg }}
+                    >
+                      {/* Floating emoji */}
+                      <motion.div
+                        whileHover={{ scale: 1.2, rotateZ: -8 }}
+                        transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+                        className="text-3xl flex-shrink-0 leading-none mt-0.5 select-none"
+                        style={{ filter: `drop-shadow(0 0 10px ${p.glow})` }}
+                      >
+                        {card.emoji}
+                      </motion.div>
+
+                      <div className="flex-1 min-w-0">
+                        <p
+                          className="font-bold text-sm mb-1"
+                          style={{
+                            background: `linear-gradient(135deg, ${p.from}, white)`,
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                          }}
+                        >
+                          {card.title}
+                        </p>
+                        <p className="text-slate-400 text-xs leading-relaxed">{card.description}</p>
+                      </div>
+                    </div>
+                  </motion.div>
                 </div>
-              </motion.div>
-            ))}
+              )
+            })}
           </div>
         ) : (
           <div className="space-y-2">
