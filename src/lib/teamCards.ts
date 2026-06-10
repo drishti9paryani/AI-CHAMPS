@@ -116,7 +116,6 @@ export const TEAM_CARDS: Record<string, TeamCard[]> = {
     { id: 'fo3', emoji: '✍️', title: 'Communication at Scale', description: 'Use AI to draft leadership communications, announcements and thought pieces.' },
     { id: 'fo4', emoji: '🔍', title: 'Market Intelligence', description: 'Automated competitive and industry monitoring with AI digest.' },
     { id: 'fo5', emoji: '🗂️', title: 'Meeting Intelligence', description: 'AI-powered meeting transcription, summary and action-item extraction.' },
-    { id: 'fo6', emoji: '🤝', title: 'Investor Narrative', description: 'Use AI to research, draft and sharpen investor-facing materials.' },
   ],
   'People & Culture': [
     { id: 'pc1', emoji: '🧲', title: 'AI-Assisted Hiring', description: 'Streamline JD writing, CV screening and interview prep with AI.' },

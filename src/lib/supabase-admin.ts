@@ -4,8 +4,17 @@ let _admin: SupabaseClient | null = null
 
 export function getSupabaseAdmin(): SupabaseClient {
   if (!_admin) {
-    const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    _admin = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, key)
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+    if (!url || !key) {
+      throw new Error(
+        'Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY. ' +
+        'Admin operations require the service role key — do not fall back to the anon key.'
+      )
+    }
+
+    _admin = createClient(url, key, { auth: { persistSession: false } })
   }
   return _admin
 }

@@ -6,7 +6,6 @@ export interface PainPoint {
 
 export const PAIN_POINTS: Record<string, PainPoint[]> = {
   "Founder's Office": [
-    { text: 'Proposal creation takes too long',              cardIds: ['fo6'] },
     { text: 'Research takes forever',                        cardIds: ['fo4'] },
     { text: 'Too many meetings',                             cardIds: ['fo5'] },
     { text: 'Lack of visibility into delivery',              cardIds: ['fo2'] },
