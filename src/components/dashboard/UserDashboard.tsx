@@ -14,7 +14,7 @@ import BookingSection from '@/components/dashboard/BookingSection'
 import DashboardSkeleton from '@/components/ui/skeletons/DashboardSkeleton'
 import StreakCard from '@/components/dashboard/StreakCard'
 import WeeklyChallenge from '@/components/dashboard/WeeklyChallenge'
-import WinFeed from '@/components/dashboard/WinFeed'
+
 import ImpactCounter from '@/components/dashboard/ImpactCounter'
 
 interface UserData {
@@ -107,9 +107,6 @@ export default function UserDashboard({ userId }: { userId: string }) {
         roadmapMode={user.roadmap_mode}
         chosenPath={user.chosen_roadmap_path}
       />
-
-      {/* AI Win Feed — social proof + habit loop */}
-      <WinFeed userId={userId} />
 
       <BookingSection />
       <LearningResources />
