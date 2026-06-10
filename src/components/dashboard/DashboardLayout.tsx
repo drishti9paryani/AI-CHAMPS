@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import ThemeToggle from '@/components/ui/ThemeToggle'
 import { signOut } from '@/lib/auth'
 
 const NAV_ITEMS = [
@@ -44,7 +43,6 @@ export default function DashboardLayout({ userName, isAdmin, children }: Dashboa
         <div className="p-6 border-b border-white/10">
           <div className="flex items-center justify-between">
             <h1 className="text-xl font-bold gradient-text">AI Champs</h1>
-            <ThemeToggle />
           </div>
           <p className="text-slate-500 text-xs mt-1 truncate">Welcome, {userName.split(' ')[0]}</p>
         </div>
