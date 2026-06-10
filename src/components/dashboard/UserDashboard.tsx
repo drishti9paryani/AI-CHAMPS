@@ -12,10 +12,6 @@ import RoadmapProgress from '@/components/dashboard/RoadmapProgress'
 import LearningResources from '@/components/dashboard/LearningResources'
 import BookingSection from '@/components/dashboard/BookingSection'
 import DashboardSkeleton from '@/components/ui/skeletons/DashboardSkeleton'
-import StreakCard from '@/components/dashboard/StreakCard'
-import WeeklyChallenge from '@/components/dashboard/WeeklyChallenge'
-
-import ImpactCounter from '@/components/dashboard/ImpactCounter'
 
 interface UserData {
   name: string
@@ -85,32 +81,21 @@ export default function UserDashboard({ userId }: { userId: string }) {
     <>
       <ArchetypeDrawer card={user.tarot_card_data} cardType={user.tarot_card_type} />
       <DashboardLayout userName={user.name} isAdmin={user.role === 'admin'}>
-      <ProfileCard
-        name={user.name}
-        department={user.department}
-        email={user.email}
-        aiScore={user.ai_score}
-      />
-
-      {/* 3D action row: streak + impact */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <StreakCard userId={userId} />
-        <ImpactCounter userId={userId} team={user.department} />
-      </div>
-
-      {/* Team's weekly challenge */}
-      <WeeklyChallenge userId={userId} team={user.department} />
-
-      <MySubmissions submission={submission} userId={userId} />
-      <RoadmapProgress
-        currentWeek={user.current_week ?? 1}
-        roadmapMode={user.roadmap_mode}
-        chosenPath={user.chosen_roadmap_path}
-      />
-
-      <BookingSection />
-      <LearningResources />
-    </DashboardLayout>
+        <ProfileCard
+          name={user.name}
+          department={user.department}
+          email={user.email}
+          aiScore={user.ai_score}
+        />
+        <MySubmissions submission={submission} userId={userId} />
+        <RoadmapProgress
+          currentWeek={user.current_week ?? 1}
+          roadmapMode={user.roadmap_mode}
+          chosenPath={user.chosen_roadmap_path}
+        />
+        <BookingSection />
+        <LearningResources />
+      </DashboardLayout>
     </>
   )
 }
