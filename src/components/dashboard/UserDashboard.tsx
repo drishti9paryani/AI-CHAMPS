@@ -92,6 +92,8 @@ export default function UserDashboard({ userId }: { userId: string }) {
           currentWeek={user.current_week ?? 1}
           roadmapMode={user.roadmap_mode}
           chosenPath={user.chosen_roadmap_path}
+          userId={userId}
+          department={user.department}
         />
         <BookingSection />
         <LearningResources />
